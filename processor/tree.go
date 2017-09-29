@@ -5,6 +5,9 @@ import (
     "strings"
     "scgen/data"
     "scgen/conf"
+    "path"
+    "utility"
+    "sort"
 )
 
 func buildTree(items []*data.Item, templateID, templateFolderID, templateFieldID, templateSectionID string) (root *data.Item, itemMap map[string]*data.Item, err error) {
@@ -54,21 +57,42 @@ func assignPaths(root *data.Item){
     }
 }
 
-func mapTemplatesAndFields(cfg conf.Configuration, item *data.Item) []data.Template {
-    templates := []data.Template{}
+func mapBaseTemplates(templates []*data.Template) map[string]*data.Template {
+    tmap := make(map[string]*data.Template)
+    for _, template := range templates {
+        tmap[template.Item.ID] = template
+    }
+
+    for _, template := range tmap {
+        for _, baseItem := range template.Item.BaseTemplateItems {
+            if baseTemplate, ok := tmap[baseItem.ID]; ok {
+                template.BaseTemplates = append(template.BaseTemplates, baseTemplate)
+            }
+        }
+    }
+
+    return tmap
+}
+
+func mapTemplatesAndFields(cfg conf.Configuration, item *data.Item) []*data.Template {
+    templates := []*data.Template{}
 
     for _, c := range item.Children {
         if c.TemplateID == cfg.TemplateID {
             fields := getFieldsFromTemplate(cfg, c)
             ns := strings.Replace(c.Path, "/", ".", -1)
             ns = strings.Replace(ns, " ", "", -1)
-            template := data.Template{ Item: c,  Fields: fields, Namespace: ns }
+            template := &data.Template{ Item: c,  Fields: fields, Namespace: ns }
             templates = append(templates, template)
         } else if c.TemplateID == cfg.TemplateFolderID {
             ts := mapTemplatesAndFields(cfg, c)
             templates = append(templates, ts...)
         }
     }
+
+    sort.Slice(templates, func(i, j int) bool {
+        return templates[i].Item.Path < templates[j].Item.Path
+    })
 
     return templates
 }
@@ -96,5 +120,45 @@ func getFieldsFromTemplateSection(cfg conf.Configuration, item *data.Item) []dat
 }
 
 func getField(cfg conf.Configuration, item *data.Item) data.Field {
-    return data.Field{ Name: item.Name, Type: item.FieldType }
+    key := strings.ToLower(item.FieldType)
+    var fieldType conf.FieldType
+    var codeType string
+    var ok bool
+    if fieldType,ok = cfg.FieldTypeMap[key]; ok {
+        codeType = fieldType.CodeType
+    } else {
+        codeType = cfg.DefaultFieldType
+    }
+    return data.Field{ Item: item, Name: item.Name, CleanName: item.CleanName, TypeName: item.FieldType, CodeType: codeType, Suffix: fieldType.Suffix }
+}
+
+func updateTemplateNamespaces(cfg conf.Configuration, templates []*data.Template){
+    stlen := len(cfg.BasePath)
+    for _, template := range templates {
+        removeBasePath := string(template.Item.Path[stlen:])
+        removeBasePath, _ = path.Split(removeBasePath)
+        nospaces := strings.Replace(strings.TrimSuffix(removeBasePath, "/"), " ", "", -1)
+        template.Namespace = strings.Replace(nospaces, "/", ".", -1)
+        template.Namespace = cfg.BaseNamespace + strings.Replace(template.Namespace, "/", ".", -1)
+    }
+}
+
+func updateReferencedNamespaces(cfg conf.Configuration, templates []*data.Template){
+    for _, template := range templates {
+        template.ReferencedNamespaces = []string{}
+        for _, base := range template.BaseTemplates {
+            if base.Namespace != template.Namespace && !utility.HasString(template.ReferencedNamespaces, base.Namespace) {
+                template.ReferencedNamespaces = append(template.ReferencedNamespaces, base.Namespace)
+            }
+        }
+    }
+}
+
+func filterTemplates(cfg conf.Configuration, templates []*data.Template) (list []*data.Template) {
+    for _, template := range templates {
+        if strings.HasPrefix(template.Item.Path, cfg.BasePath) {
+            list = append(list, template)
+        }
+    }
+    return
 }

@@ -9,14 +9,17 @@ type Processor struct {
     Config conf.Configuration
 }
 
-func (p Processor) Process(itemPath, namespace string){
+func (p Processor) Process(){
     if items, err := getItems(p.Config); err == nil {
-        root,itemMap,_ := buildTree(items, p.Config.TemplateID, p.Config.TemplateFolderID, p.Config.TemplateFieldID, p.Config.TemplateSectionID)
-        fmt.Println(root,len(itemMap))
+        root,_,_ := buildTree(items, p.Config.TemplateID, p.Config.TemplateFolderID, p.Config.TemplateFieldID, p.Config.TemplateSectionID)
 
         templates := mapTemplatesAndFields(p.Config, root)
+        templates = filterTemplates(p.Config, templates)
+        mapBaseTemplates(templates)
 
-        fmt.Println(len(templates))
+        updateTemplateNamespaces(p.Config, templates)
+        updateReferencedNamespaces(p.Config, templates)
+        generate(p.Config, templates)
     } else {
         fmt.Println("error occurred", err)
     }

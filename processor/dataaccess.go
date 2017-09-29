@@ -15,7 +15,7 @@ var timefmt string = "2006-01-02 15:04:05.999"
 func getItems(cfg conf.Configuration) ([]*data.Item, error) {
     sqlfmt := `
         select 
-            cast(Items.ID as varchar(100)) ID, Name, cast(TemplateID as varchar(100)) TemplateID, cast(ParentID as varchar(100)) ParentID, Items.Created, Items.Updated, isnull(sf.Value, '') as Type, isnull(Replace(Replace(b.Value, '}',''), '{', ''), '') as BaseTemplates
+            cast(Items.ID as varchar(100)) ID, Name, replace(Name, ' ', '') as NameNoSpaces, cast(TemplateID as varchar(100)) TemplateID, cast(ParentID as varchar(100)) ParentID, Items.Created, Items.Updated, isnull(sf.Value, '') as Type, isnull(Replace(Replace(b.Value, '}',''), '{', ''), '') as BaseTemplates
         from
             Items
                 left join SharedFields sf
@@ -38,7 +38,7 @@ func getItems(cfg conf.Configuration) ([]*data.Item, error) {
 
         if records,err := rs.GetResultSet(db, sqlstr); err == nil {
             for _, row := range records {
-                item := &data.Item{ ID: row["ID"].(string), Name: row["Name"].(string), TemplateID: row["TemplateID"].(string), ParentID: row["ParentID"].(string), Created: row["Created"].(time.Time), Updated: row["Updated"].(time.Time), FieldType: row["Type"].(string), BaseTemplates: row["BaseTemplates"].(string) }
+                item := &data.Item{ ID: row["ID"].(string), Name: row["Name"].(string), CleanName: row["NameNoSpaces"].(string), TemplateID: row["TemplateID"].(string), ParentID: row["ParentID"].(string), Created: row["Created"].(time.Time), Updated: row["Updated"].(time.Time), FieldType: row["Type"].(string), BaseTemplates: row["BaseTemplates"].(string) }
                 items = append(items, item)
             }
         } else {
