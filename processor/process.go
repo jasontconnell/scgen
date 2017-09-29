@@ -9,12 +9,20 @@ type Processor struct {
     Config conf.Configuration
 }
 
-func (p Processor) Process(){
+type ProcessResults struct {
+    TemplatesRead int
+    TemplatesProcessed int
+}
+
+func (p Processor) Process() ProcessResults {
+    results := ProcessResults{}
     if items, err := getItems(p.Config); err == nil {
         root,_,_ := buildTree(items, p.Config.TemplateID, p.Config.TemplateFolderID, p.Config.TemplateFieldID, p.Config.TemplateSectionID)
 
         templates := mapTemplatesAndFields(p.Config, root)
+        results.TemplatesRead = len(templates)
         templates = filterTemplates(p.Config, templates)
+        results.TemplatesProcessed = len(templates)
         mapBaseTemplates(templates)
 
         updateTemplateNamespaces(p.Config, templates)
@@ -23,4 +31,6 @@ func (p Processor) Process(){
     } else {
         fmt.Println("error occurred", err)
     }
+
+    return results
 }

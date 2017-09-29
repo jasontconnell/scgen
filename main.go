@@ -21,7 +21,9 @@ func main(){
     cfg.FileMode = mode
 
     processor := processor.Processor{ Config: cfg }
-    processor.Process()
+    result := processor.Process()
 
     fmt.Println("Finished generating code in", time.Since(start))
+    s := fmt.Sprintf("Templates read: %v  Templates processed: %v", result.TemplatesRead, result.TemplatesProcessed)
+    fmt.Println(s)
 }
