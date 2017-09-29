@@ -24,6 +24,5 @@ func main(){
     result := processor.Process()
 
     fmt.Println("Finished generating code in", time.Since(start))
-    s := fmt.Sprintf("Templates read: %v  Templates processed: %v", result.TemplatesRead, result.TemplatesProcessed)
-    fmt.Println(s)
+    fmt.Printf("Templates read: %v  Templates processed: %v\n", result.TemplatesRead, result.TemplatesProcessed)
 }
