@@ -21,8 +21,8 @@ type Configuration struct {
     FieldTypeMap map[string]FieldType
     DefaultFieldType string `json:"defaultFieldType"`
 
-    OneTemplate string `json:"oneTemplate"`
-    ManyTemplate string `json:"manyTemplate"`
+    CodeTemplate string `json:"codeTemplate"`
+    CodeFileExtension string `json:"codeFileExtension"`
 
     ConnectionString string `json:"connectionString"`
 

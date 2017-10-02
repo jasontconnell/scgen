@@ -47,6 +47,5 @@ func getItems(cfg conf.Configuration) ([]*data.Item, error) {
     } else {
         return nil, err
     }
-
     return items, nil
 }

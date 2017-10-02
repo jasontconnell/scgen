@@ -28,10 +28,11 @@ func buildTree(items []*data.Item, templateID, templateFolderID, templateFieldID
         }
     }
 
-    root.Path = ""
-    assignPaths(root)
-    assignBaseTemplates(itemMap)
-    
+    if root != nil {
+        root.Path = ""
+        assignPaths(root)
+        assignBaseTemplates(itemMap)
+    }
     return root, itemMap, nil
 }
 

@@ -6,13 +6,13 @@
     "folder": "A87A00B1-E6DB-45AB-8B54-636FEC3B5523",
 
     "connectionString": "user id=dngaming;password=J2!-9w&rGx8M;server=50.226.142.72;database=DelawareNorth_Gaming_Dev_Master",
-    "basePath": "/User Defined",
+    "basePath": "/User Defined/Site Specific/Replicator Core",
     "baseNamespace": "DD.Data.GlassMapper.Models.DelawareNorth",
-    "filemode": "one",
-    "outputPath": "C:\\Jason\\Generated.cs",
+    "filemode": "many",
+    "outputPath": "c:\\Jason\\DelawareNorthGenerated\\",
 
-    "oneTemplate": "tmpl\\one.txt",
-    "manyTemplate": "tmpl\\many.txt",
+    "codeTemplate": "tmpl\\template.txt",
+    "codeFileExtension": "cs",
 
     "fieldTypes": [
         { "typeName": "Checkbox", "codeType": "bool", "suffix": "" },

@@ -7,7 +7,10 @@ import (
     "text/template"
     "bytes"
     "os"
-    "bufio"
+    "io/ioutil"
+    "strings"
+    "path"
+    "path/filepath"
 )
 
 type TemplateData struct {
@@ -27,7 +30,7 @@ func generate (cfg conf.Configuration, templates []*data.Template) {
 func processOne(cfg conf.Configuration, templates []*data.Template) {
     os.Remove(cfg.OutputPath)
 
-    if tmpl, err := template.ParseFiles(cfg.OneTemplate); err == nil {
+    if tmpl, err := template.ParseFiles(cfg.CodeTemplate); err == nil {
         buffer := new(bytes.Buffer)
         terr := tmpl.Execute(buffer, TemplateData{ Templates: templates } )
 
@@ -35,17 +38,43 @@ func processOne(cfg conf.Configuration, templates []*data.Template) {
             panic(terr)
         }
 
-        if file, err := os.OpenFile(cfg.OutputPath, os.O_CREATE, 0755); err == nil {
-            w := bufio.NewWriter(file)
-            w.Write(buffer.Bytes())
-        } else {
-            fmt.Println("Couldn't open output file", err)
-        }
+        writeFile(cfg.OutputPath, buffer.Bytes())
     } else {
         fmt.Println("couldn't parse template", err)
     }
 }
 
 func processMany(cfg conf.Configuration, templates []*data.Template) {
-    
+    if err := os.RemoveAll(cfg.OutputPath); err == nil {
+        if err := os.MkdirAll(cfg.OutputPath, os.ModePerm); err == nil {
+            if tmpl, err := template.ParseFiles(cfg.CodeTemplate); err == nil {
+                for _, template := range templates {
+                    p := template.Item.Path
+                    dir,_ := path.Split(strings.TrimPrefix(p, cfg.BasePath))
+                    dir = strings.Replace(dir, "/", "\\", -1)
+                    fullPath := filepath.Join(cfg.OutputPath, dir)
+                   
+                    if cerr := os.MkdirAll(fullPath, os.ModePerm); cerr == nil {
+                        buffer := new(bytes.Buffer)
+                        terr := tmpl.Execute(buffer, TemplateData{ Templates: append([]*data.Template{}, template) } )
+
+                        if terr != nil {
+                            panic(terr)
+                        }
+
+                        filename := filepath.Join(fullPath, template.Item.CleanName + "." + cfg.CodeFileExtension)
+                        if err := writeFile(filename, buffer.Bytes()); err != nil {
+                            fmt.Println("error occurred", err)
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        fmt.Println("error occurred removing all", err)
+    }
+}
+
+func writeFile(path string, bytes []byte) error {
+    return ioutil.WriteFile(path, bytes, os.ModePerm)
 }
