@@ -30,7 +30,7 @@
         { "typeName": "Readonly Checkbox", "codeType": "bool", "suffix": "" }
     ],
     "defaultFieldType": "string",
-    "serializationPath": "c:\\jason\\DelawareNorthSerialize\\",
+    "serializationPath": "c:\\jason\\DelawareNorth\\Serialize",
     "serializationExtension": "txt",
     "basePaths": [
         "/sitecore/templates/User Defined/Site Specific",

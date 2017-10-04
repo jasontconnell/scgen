@@ -3,7 +3,7 @@
     "basePath": "/sitecore/templates/User Defined",
     "baseNamespace": "DD.Data.GlassMapper.Models.DelawareNorth",
     "filemode": "one",
-    "outputPath": "c:\\Jason\\DelawareNorthGenerated\\Generated.cs",
+    "outputPath": "c:\\Jason\\DelawareNorth\\Generated.cs",
 
     "codeTemplate": "tmpl\\template.txt",
     "codeFileExtension": "cs",
