@@ -10,22 +10,25 @@ type SerializedItem struct {
 }
 
 type SerializedField struct {
-    ID string
+    FieldValueID string
+    FieldID string
     Name string
     Value string
+    Version int64
+    Language string
+    Source string
 }
 
 type FieldValue struct {
-    ID string
-    ItemName string
+    FieldValueID string
+    ItemID string
     FieldName string
-    TemplateID string
-    ParentID string
     FieldID string
     Path string
     Value string
-    Created time.Time
-    Updated time.Time
+    Source string
+    Language string
+    Version int64
 }
 
 type Item struct {
@@ -37,6 +40,7 @@ type Item struct {
     CleanName string
     TemplateID string
     ParentID string
+    MasterID string
     Path string
     Created time.Time
     Updated time.Time
@@ -66,3 +70,47 @@ type Field struct {
     Suffix string
 }
 
+type DeserializedItem struct {
+    ID string
+    Name string
+    TemplateID string
+    ParentID string
+    MasterID string
+    Fields []DeserializedField
+}
+
+type DeserializedField struct {
+    ID string
+    Name string
+    Value string
+    Version int64
+    Language string
+    Source string
+}
+
+
+type UpdateType string
+const (
+    Insert UpdateType = "insert"
+    Update UpdateType = "update"
+    Delete UpdateType = "delete"
+)
+
+type UpdateItem struct {
+    ID string
+    Name string
+    TemplateID string
+    ParentID string
+    MasterID string
+    UpdateType UpdateType
+}
+
+type UpdateField struct {
+    ItemID string
+    FieldID string
+    Value string
+    Source string
+    Version int64
+    Language string
+    UpdateType UpdateType
+}

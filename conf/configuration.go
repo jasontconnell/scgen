@@ -27,12 +27,14 @@ type Configuration struct {
     CodeFileExtension string `json:"codeFileExtension"`
 
     SerializationIgnoredFields []string `json:"serializationIgnoredFields"`
-    SerializationOutputPath string `json:"serializationOutputPath"`
+    SerializationPath string `json:"serializationPath"`
+    SerializationExtension string `json:"serializationExtension"`
 
     ConnectionString string `json:"connectionString"`
 
     Serialize bool `json:"serialize"`
     Generate bool `json:"generate"`
+    Deserialize bool `json:"deserialize"`
 
     BasePath string `json:"basePath"`
     BasePaths []string `json:"basePaths"`

@@ -7,6 +7,7 @@ import (
     "path"
     "utility"
     "sort"
+    //"fmt"
 )
 
 func buildTree(items []*data.Item, templateID, templateFolderID, templateFieldID, templateSectionID string) (root *data.Item, itemMap map[string]*data.Item, err error) {
@@ -161,6 +162,12 @@ func filterItemMap(cfg conf.Configuration, items map[string]*data.Item) (map[str
             if !include && strings.HasPrefix(item.Path, basePath){
                 include = true
                 break
+            } else {
+                parent := path.Dir(basePath)
+                for parent != "/" && parent != "" && !include {
+                    include = item.Path == parent
+                    parent = path.Dir(parent)
+                }
             }
         }
 

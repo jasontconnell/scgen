@@ -3,6 +3,7 @@ package processor
 import (
     "fmt"
     "scgen/conf"
+    "scgen/data"
 )
 
 type Processor struct {
@@ -14,6 +15,8 @@ type ProcessResults struct {
     TemplatesProcessed int
     ItemsRead int
     ItemsSerialized int
+    ItemsDeserialized int
+    FieldsDeserialized int
 }
 
 func (p Processor) Process() ProcessResults {
@@ -43,11 +46,26 @@ func (p Processor) Process() ProcessResults {
             generate(p.Config, templates)
         }
 
+        var serialList []*data.SerializedItem
+        if p.Config.Serialize || p.Config.Deserialize {
+            fmt.Println("Getting items for serialization / deserialization")
+            serialList = getSerializeItems(p.Config, itemMap)
+        }
+
         if p.Config.Serialize {
             fmt.Println("Serializing items")
-            serialList := getSerializeItems(p.Config, itemMap)
             serializeItems(p.Config, serialList)
             results.ItemsSerialized = len(serialList)
+        }
+
+        if p.Config.Deserialize {
+            fmt.Println("Getting items for deserialization")
+            deserializeItems := getItemsForDeserialization(p.Config)
+            fmt.Println(len(deserializeItems), "items for deserialization")
+            updateItems, updateFields := filterUpdateItems(serialList, deserializeItems)
+            results.ItemsDeserialized = len(updateItems)
+            results.FieldsDeserialized = len(updateFields)
+            deserialize(p.Config, updateItems, updateFields)
         }
 
     } else {

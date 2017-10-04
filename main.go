@@ -32,5 +32,5 @@ func main(){
     result := processor.Process()
 
     fmt.Println("Finished generating code in", time.Since(start))
-    fmt.Printf("Templates read: %v   Templates processed: %v    Items Read: %v   Items Serialized: %v", result.TemplatesRead, result.TemplatesProcessed, result.ItemsRead, result.ItemsSerialized)
+    fmt.Printf("Items Read: %v   Templates read: %v   Templates processed: %v    Items Serialized: %v   Items Synced: %v   Fields Synced: %v", result.ItemsRead, result.TemplatesRead, result.TemplatesProcessed, result.ItemsSerialized, result.ItemsDeserialized, result.FieldsDeserialized)
 }
