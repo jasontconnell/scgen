@@ -4,6 +4,29 @@ import (
     "time"
 )
 
+type SerializedItem struct {
+    Item *Item
+    Fields []SerializedField
+}
+
+type SerializedField struct {
+    ID string
+    Name string
+    Value string
+}
+
+type FieldValue struct {
+    ID string
+    ItemName string
+    FieldName string
+    TemplateID string
+    ParentID string
+    FieldID string
+    Path string
+    Value string
+    Created time.Time
+    Updated time.Time
+}
 
 type Item struct {
     Parent *Item

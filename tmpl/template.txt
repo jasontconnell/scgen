@@ -17,13 +17,8 @@ using Glass.Mapper.Sc.Fields;
 using Sitecore.Data;
 using System;
 using System.Collections.Generic;
-
 {{ range $index, $template := .Templates }}
-
 namespace {{ .Namespace }} {
-    {{ range $refindex, $referencedNamespace := $template.ReferencedNamespaces }}
-    // using {{ $referencedNamespace }};{{ end }}
-
     public class {{ $template.Item.CleanName }}Constants {
         public const string TemplateIdString = "{{ $template.Item.ID }}";
         public static readonly ID TemplateId = new ID(TemplateIdString);

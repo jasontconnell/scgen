@@ -18,8 +18,6 @@ type TemplateData struct {
 }
 
 func generate (cfg conf.Configuration, templates []*data.Template) {
-    fmt.Println("generating code")
-
     if cfg.FileMode == conf.One {
         processOne(cfg, templates)
     } else {
@@ -50,7 +48,10 @@ func processMany(cfg conf.Configuration, templates []*data.Template) {
             if tmpl, err := template.ParseFiles(cfg.CodeTemplate); err == nil {
                 for _, template := range templates {
                     p := template.Item.Path
-                    dir,_ := path.Split(strings.TrimPrefix(p, cfg.BasePath))
+                    for _, bp := range cfg.BasePaths {
+                        p = strings.TrimPrefix(p, bp)
+                    }
+                    dir,_ := path.Split(p)
                     dir = strings.Replace(dir, "/", "\\", -1)
                     fullPath := filepath.Join(cfg.OutputPath, dir)
                    

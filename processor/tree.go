@@ -1,7 +1,6 @@
 package processor
 
 import (
-    "fmt"
     "strings"
     "scgen/data"
     "scgen/conf"
@@ -16,20 +15,18 @@ func buildTree(items []*data.Item, templateID, templateFolderID, templateFieldID
         itemMap[item.ID] = item
     }
 
-    fmt.Println("building tree")
-
     root = nil
     for _, item := range itemMap {
         if p, ok := itemMap[item.ParentID]; ok {
             p.Children = append(p.Children, item)
             item.Parent = p
-        } else if item.ParentID == "11111111-1111-1111-1111-111111111111" {
+        } else if item.ParentID == "00000000-0000-0000-0000-000000000000" {
             root = item
         }
     }
 
     if root != nil {
-        root.Path = ""
+        root.Path = "/" + root.Name
         assignPaths(root)
         assignBaseTemplates(itemMap)
     }
@@ -38,7 +35,6 @@ func buildTree(items []*data.Item, templateID, templateFolderID, templateFieldID
 
 func assignBaseTemplates(itemMap map[string]*data.Item){
     for _, item := range itemMap {
-
         ids := strings.Split(item.BaseTemplates, "|")
         if len(ids) > 0 {
             item.BaseTemplateItems = []*data.Item{}
@@ -85,7 +81,7 @@ func mapTemplatesAndFields(cfg conf.Configuration, item *data.Item) []*data.Temp
             ns = strings.Replace(ns, " ", "", -1)
             template := &data.Template{ Item: c,  Fields: fields, Namespace: ns }
             templates = append(templates, template)
-        } else if c.TemplateID == cfg.TemplateFolderID {
+        } else {
             ts := mapTemplatesAndFields(cfg, c)
             templates = append(templates, ts...)
         }
@@ -134,9 +130,11 @@ func getField(cfg conf.Configuration, item *data.Item) data.Field {
 }
 
 func updateTemplateNamespaces(cfg conf.Configuration, templates []*data.Template){
-    stlen := len(cfg.BasePath)
     for _, template := range templates {
-        removeBasePath := string(template.Item.Path[stlen:])
+        removeBasePath := template.Item.Path
+        for _, basePath := range cfg.BasePaths {
+            removeBasePath = strings.TrimPrefix(removeBasePath, basePath)
+        }
         removeBasePath, _ = path.Split(removeBasePath)
         nospaces := strings.Replace(strings.TrimSuffix(removeBasePath, "/"), " ", "", -1)
         template.Namespace = strings.Replace(nospaces, "/", ".", -1)
@@ -155,9 +153,35 @@ func updateReferencedNamespaces(cfg conf.Configuration, templates []*data.Templa
     }
 }
 
+func filterItemMap(cfg conf.Configuration, items map[string]*data.Item) (map[string]*data.Item) {
+    filteredMap := make(map[string]*data.Item)
+    for _, item := range items {
+        include := false
+        for _, basePath := range cfg.BasePaths {
+            if !include && strings.HasPrefix(item.Path, basePath){
+                include = true
+                break
+            }
+        }
+
+        if include {
+            filteredMap[item.ID] = item
+        }
+    }
+    return filteredMap
+}
+
 func filterTemplates(cfg conf.Configuration, templates []*data.Template) (list []*data.Template) {
     for _, template := range templates {
-        if strings.HasPrefix(template.Item.Path, cfg.BasePath) {
+        include := false
+        for _, basePath := range cfg.BasePaths {
+            if !include && strings.HasPrefix(template.Item.Path, basePath){
+                include = true
+                break
+            }
+        }
+
+        if include {
             list = append(list, template)
         }
     }
