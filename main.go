@@ -32,5 +32,5 @@ func main() {
 	result := processor.Process()
 
 	fmt.Println("Finished process in", time.Since(start))
-	fmt.Printf("Items Read: %v   Templates read: %v   Templates processed: %v    Items Serialized: %v   Items Synced: %v   Fields Synced: %v", result.ItemsRead, result.TemplatesRead, result.TemplatesProcessed, result.ItemsSerialized, result.ItemsDeserialized, result.FieldsDeserialized)
+	fmt.Printf("Items Read: %v   Templates read: %v   Templates processed: %v    Items Serialized: %v   Items Synced: %v   Fields Synced: %v  (Orphans: %v)", result.ItemsRead, result.TemplatesRead, result.TemplatesProcessed, result.ItemsSerialized, result.ItemsDeserialized, result.FieldsDeserialized, result.OrphansCleared)
 }

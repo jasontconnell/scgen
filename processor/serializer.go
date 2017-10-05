@@ -55,9 +55,9 @@ func serializeItems(cfg conf.Configuration, list []*data.SerializedItem) error {
 		dir := filepath.Join(cfg.SerializationPath, path)
 
 		if err := os.MkdirAll(dir, os.ModePerm); err == nil {
-			d := fmt.Sprintf("ID: %v\nName: %v\nTemplateID: %v\nParentID: %v\nMasterID: %v\n\n", item.Item.ID, item.Item.Name, item.Item.TemplateID, item.Item.ParentID, item.Item.MasterID)
+			d := fmt.Sprintf("ID: %v\r\nName: %v\r\nTemplateID: %v\r\nParentID: %v\r\nMasterID: %v\r\n\r\n", item.Item.ID, item.Item.Name, item.Item.TemplateID, item.Item.ParentID, item.Item.MasterID)
 			for _, f := range item.Fields {
-				d += fmt.Sprintf("__FIELD__\nID: %v\nName: %v\nVersion: %v\nLanguage: %v\nSource: %v\n%v\n%v\n%v\n\n", f.FieldID, f.Name, f.Version, f.Language, f.Source, sepstart, f.Value, sepend)
+				d += fmt.Sprintf("__FIELD__\r\nID: %v\r\nName: %v\r\nVersion: %v\r\nLanguage: %v\r\nSource: %v\r\n%v\r\n%v\r\n%v\r\n\r\n", f.FieldID, f.Name, f.Version, f.Language, f.Source, sepstart, f.Value, sepend)
 			}
 
 			filename := filepath.Join(dir, item.Item.ID+"."+cfg.SerializationExtension)

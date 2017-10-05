@@ -201,3 +201,27 @@ func getSqlForFields(fields []data.UpdateField) []string {
 	}
 	return sqllist
 }
+
+func cleanOrphanedItems(cfg conf.Configuration) (rows int64) {
+    subq := "select ID from Items where ParentID not in (select ID from Items) and ParentID <> '00000000-0000-0000-0000-000000000000'"
+    sqlfmt := `
+        delete from SharedFields where ItemID in ( %[1]v )
+        delete from VersionedFields where ItemID in ( %[1]v )
+        delete from UnversionedFields where ItemID in ( %[1]v )
+        delete from Items where ID in ( %[1]v )
+    `
+
+    sqlstr := fmt.Sprintf(sqlfmt, subq)
+
+    if db, err := sql.Open("mssql", cfg.ConnectionString); err == nil {
+        defer db.Close()
+
+        if result, err := db.Exec(sqlstr); err == nil {
+            rows, _ = result.RowsAffected()
+        } else {
+            fmt.Println("cleaning orphaned items", err)
+        }
+    }
+
+    return  
+}

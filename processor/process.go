@@ -17,6 +17,7 @@ type ProcessResults struct {
 	ItemsSerialized    int
 	ItemsDeserialized  int
 	FieldsDeserialized int
+	OrphansCleared     int64
 }
 
 func (p Processor) Process() ProcessResults {
@@ -66,6 +67,7 @@ func (p Processor) Process() ProcessResults {
 			results.ItemsDeserialized = len(updateItems)
 			results.FieldsDeserialized = len(updateFields)
 			deserialize(p.Config, updateItems, updateFields)
+			results.OrphansCleared = cleanOrphanedItems(p.Config)
 		}
 
 	} else {

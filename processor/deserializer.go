@@ -12,8 +12,8 @@ import (
 	"strings"
 )
 
-var itemregex *regexp.Regexp = regexp.MustCompile(`ID: (.*?)\nName: (.*?)\nTemplateID: (.*?)\nParentID: (.*?)\nMasterID: (.*?)\n`)
-var fieldregex *regexp.Regexp = regexp.MustCompile(`(?s)__FIELD__\nID: (.*?)\nName: (.*?)\nVersion: (.*?)\nLanguage: (.*?)\nSource: (.*?)\n__VALUESTART__\n(.*?)\n___VALUEEND___\n\n`)
+var itemregex *regexp.Regexp = regexp.MustCompile(`ID: (.*?)\r\nName: (.*?)\r\nTemplateID: (.*?)\r\nParentID: (.*?)\r\nMasterID: (.*?)\n`)
+var fieldregex *regexp.Regexp = regexp.MustCompile(`(?s)__FIELD__\r\nID: (.*?)\r\nName: (.*?)\r\nVersion: (.*?)\r\nLanguage: (.*?)\r\nSource: (.*?)\r\n__VALUESTART__\n(.*?)\r\n___VALUEEND___\r\n\r\n`)
 
 func getItemsForDeserialization(cfg conf.Configuration) []data.DeserializedItem {
 	list := []data.DeserializedItem{}
