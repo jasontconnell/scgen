@@ -1,0 +1,1 @@
+{{ range $index, $template := .Templates }}@model {{$template.Namespace}}.{{$template.Item.CleanName}}Model{{end}}

@@ -39,9 +39,11 @@ type Configuration struct {
 
 	BasePath       string   `json:"basePath"`
 	BasePaths      []string `json:"basePaths"`
-	BaseNamespace  string   `json:"baseNamespace"`
 	FileModeString string   `json:"filemode"`
 	OutputPath     string   `json:"outputPath"`
+	FilenameTemplate     string   `json:"filenameTemplate"`
+	GroupTemplatesBy string `json:"groupTemplatesBy"`
+	TemplatePaths  []TemplatePath `json:"templatePaths"`
 
 	// not in config file
 	FileMode FileMode
@@ -51,6 +53,13 @@ type FieldType struct {
 	TypeName string `json:"typeName"`
 	CodeType string `json:"codeType"`
 	Suffix   string `json:"suffix"`
+}
+
+type TemplatePath struct {
+	Path string `json:"path"`
+	Namespace string `json:"namespace"`
+	AlternateNamespace string `json:"alternateNamespace"`
+	Ignore bool `json:"ignore"`
 }
 
 func LoadConfig(file string) Configuration {

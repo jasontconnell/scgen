@@ -1,0 +1,15 @@
+{
+    "generate": true,
+    "filemode": "many",
+    "outputPath": "c:\\Jason\\DelawareNorth\\Models\\",
+
+    "codeTemplate": "tmpl\\model.txt",
+    "codeFileExtension": "cs",
+    "templatePaths": [
+        { "path": "/sitecore/templates/User Defined/Global", "namespace": "DD.Domain.Models", "alternateNamespace": "DD.Data.GlassMapper" },
+        { "path": "/sitecore/templates/User Defined/Site Specific", "namespace": "DD.Domain.Models" , "alternateNamespace": "DD.Data.GlassMapper"},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Base", "ignore": true},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Settings", "ignore": true}
+
+    ]
+}

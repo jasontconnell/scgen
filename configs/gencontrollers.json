@@ -1,0 +1,18 @@
+{
+    "generate": true,
+    "filemode": "many",
+    "outputPath": "c:\\Jason\\DelawareNorth\\Controllers\\",
+    "filenameTemplate": "Replicator Core\\{{ $.Item.Parent.CleanName}}Controller",
+    "codeTemplate": "tmpl\\controller.txt",
+    "groupTemplatesBy": "Parent",
+    "codeFileExtension": "cs",
+    "templatePaths": [
+        { "path": "/sitecore/templates/User Defined/Global", "ignore": true },
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core", "namespace": "DD.Domain.Models" , "alternateNamespace": "DD.Data.GlassMapper"},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Pages", "ignore": true},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Folders", "ignore": true},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Rendering Parameters", "ignore": true},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Base", "ignore": true},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Settings", "ignore": true}
+    ]
+}

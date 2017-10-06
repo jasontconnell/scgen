@@ -1,0 +1,18 @@
+{{ range $index, $template := .Templates }}
+
+{{ if eq ($index)  0 -}}
+public class {{$template.Item.Parent.CleanName}}Controller : BaseController {
+{{- end}}
+
+public ActionResult {{ $template.Item.CleanName }} (){
+    {{$template.Item.CleanName}}Model model = new {{$template.Item.CleanName}}Model();
+}
+
+{{ if eq (plus1 $index) (len $.Templates) }}
+
+}
+
+{{end}}
+
+
+{{end}}

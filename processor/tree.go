@@ -139,7 +139,18 @@ func updateTemplateNamespaces(cfg conf.Configuration, templates []*data.Template
 		removeBasePath, _ = path.Split(removeBasePath)
 		nospaces := strings.Replace(strings.TrimSuffix(removeBasePath, "/"), " ", "", -1)
 		template.Namespace = strings.Replace(nospaces, "/", ".", -1)
-		template.Namespace = cfg.BaseNamespace + strings.Replace(template.Namespace, "/", ".", -1)
+		ns := ""
+		ans := ""
+		for _, templatePath := range cfg.TemplatePaths {
+			if strings.HasPrefix(template.Item.Path, templatePath.Path){
+				ns = templatePath.Namespace
+				ans = templatePath.AlternateNamespace
+				break
+			}
+		}
+		rns := template.Namespace
+		template.Namespace = ns + strings.Replace(rns, "/", ".", -1)
+		template.AlternateNamespace = ans + strings.Replace(rns, "/", ".", -1)
 	}
 }
 
@@ -159,8 +170,10 @@ func filterItemMap(cfg conf.Configuration, items map[string]*data.Item) map[stri
 	for _, item := range items {
 		include := false
 		for _, basePath := range cfg.BasePaths {
+			negate := basePath[0] == '-'
+			basePath = strings.TrimPrefix(basePath, "-")
 			if !include && strings.HasPrefix(item.Path, basePath) {
-				include = true
+				include = !negate
 				break
 			} else {
 				parent := path.Dir(basePath)
@@ -181,14 +194,17 @@ func filterItemMap(cfg conf.Configuration, items map[string]*data.Item) map[stri
 func filterTemplates(cfg conf.Configuration, templates []*data.Template) (list []*data.Template) {
 	for _, template := range templates {
 		include := false
-		for _, basePath := range cfg.BasePaths {
-			if !include && strings.HasPrefix(template.Item.Path, basePath) {
+		ignore := false
+		for _, templatePath := range cfg.TemplatePaths {
+			if !include && strings.HasPrefix(template.Item.Path, templatePath.Path) {
 				include = true
+				ignore = templatePath.Ignore
 				break
 			}
 		}
 
 		if include {
+			template.Generate = !ignore
 			list = append(list, template)
 		}
 	}

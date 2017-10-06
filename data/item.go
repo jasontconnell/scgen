@@ -58,7 +58,9 @@ type Template struct {
 	BaseTemplates        []*Template
 	Fields               []Field
 	Namespace            string
+	AlternateNamespace   string
 	ReferencedNamespaces []string
+	Generate bool
 }
 
 type Field struct {

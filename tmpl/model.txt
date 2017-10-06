@@ -1,0 +1,22 @@
+using DD.Domain.Models;
+{{ range $index, $template := .Templates }}
+{{ if (len $template.BaseTemplates) gt 0}}
+    {{ range $bindex, $baseTemplate := $template.BaseTemplates }}
+using {{ $baseTemplate.Namespace }};
+    {{end}}{{end}}
+
+    namespace {{ $template.Namespace }} {
+        {{ if (len $template.AlternateNamespace) gt 0 }}
+        using global::{{$template.AlternateNamespace}};
+        {{end}}
+        public partial class {{$template.Item.CleanName}}Model : AbstractModel<I{{$template.Item.CleanName}}> {
+            public {{$template.Item.CleanName}}Model(I{{$template.Item.CleanName}} model) : base(model){
+            
+            }
+
+            // TODO: fill in properties needed
+
+
+        }
+    }
+{{end}}

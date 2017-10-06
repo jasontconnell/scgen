@@ -1,0 +1,17 @@
+{
+    "generate": true,
+    "filemode": "many",
+    "outputPath": "c:\\Jason\\DelawareNorth\\Views\\",
+
+    "codeTemplate": "tmpl\\view.txt",
+    "codeFileExtension": "cshtml",
+    "templatePaths": [
+        { "path": "/sitecore/templates/User Defined/Global", "namespace": "DD.Domain.Models", "alternateNamespace": "DD.Data.GlassMapper" },
+        { "path": "/sitecore/templates/User Defined/Site Specific", "namespace": "DD.Domain.Models" , "alternateNamespace": "DD.Data.GlassMapper"},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Pages", "ignore": true},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Folders", "ignore": true},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Rendering Parameters", "ignore": true},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Base", "ignore": true},
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core/Settings", "ignore": true}
+    ]
+}
