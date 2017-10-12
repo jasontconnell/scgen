@@ -1,0 +1,13 @@
+{
+    "generate": true,
+    "filemode": "one",
+    "outputPath": "C:\\inetpub\\wwwroot\\DelawareNorth-Gaming\\DD.Data\\Models\\Generated.cs",
+
+    "codeTemplate": "tmpl\\interfacewithfieldconstants.txt",
+    "codeFileExtension": "cs",
+    "templatePaths": [
+        { "path": "/sitecore/templates/User Defined/Global", "namespace": "DD.Data.Models" },
+        { "path": "/sitecore/templates/User Defined/Site Specific/Gaming", "namespace": "DD.Data.Models" },
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core", "namespace": "DD.Data.Models" }
+    ]
+}

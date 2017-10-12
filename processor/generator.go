@@ -40,7 +40,7 @@ func groupTemplates(by string, templates []*data.Template) []*[]*data.Template {
 			dlist = append(dlist, tmpl)
 			tmpmap[key] = &dlist
 		} else {
-			list = &[]*data.Template{ tmpl }
+			list = &[]*data.Template{tmpl}
 			tmpmap[key] = list
 		}
 	}
@@ -59,7 +59,14 @@ func generate(cfg conf.Configuration, templates []*data.Template) {
 		panic(err)
 	}
 
-	if err := os.MkdirAll(cfg.OutputPath, os.ModePerm); err != nil {
+	var outputPath string
+	if filepath.Ext(cfg.OutputPath) == "" {
+		outputPath = cfg.OutputPath
+	} else {
+		outputPath = filepath.Dir(cfg.OutputPath)
+	}
+
+	if err := os.MkdirAll(outputPath, os.ModePerm); err != nil {
 		panic(err)
 	}
 
@@ -83,10 +90,10 @@ func generate(cfg conf.Configuration, templates []*data.Template) {
 	}
 }
 
-func processTemplate(code string, tmpl *data.Template) string {
+func processInlineTemplate(code string, tmpl *data.Template) string {
 	var value string
 	ftmpl := template.New("Template")
-	if ftmp,ferr := ftmpl.Parse(code); ferr == nil {
+	if ftmp, ferr := ftmpl.Parse(code); ferr == nil {
 		fbuf := new(bytes.Buffer)
 		if fexecerr := ftmp.Execute(fbuf, tmpl); fexecerr == nil {
 			value = string(fbuf.Bytes())
@@ -99,7 +106,7 @@ func processTemplate(code string, tmpl *data.Template) string {
 }
 
 func processOne(cfg conf.Configuration, templates []*data.Template) {
-	if tmpl,err := template.New(cfg.CodeTemplate).Funcs(fns).ParseFiles(cfg.CodeTemplate); err == nil {
+	if tmpl, err := template.New(cfg.CodeTemplate).Funcs(fns).ParseFiles(cfg.CodeTemplate); err == nil {
 		buffer := new(bytes.Buffer)
 		_, templateName := filepath.Split(cfg.CodeTemplate)
 		terr := tmpl.ExecuteTemplate(buffer, templateName, TemplateData{Templates: templates})
@@ -110,7 +117,7 @@ func processOne(cfg conf.Configuration, templates []*data.Template) {
 
 		outputPath := cfg.OutputPath
 		if cfg.FilenameTemplate != "" {
-			fname := processTemplate(cfg.FilenameTemplate, templates[0]) + "." + cfg.CodeFileExtension
+			fname := processInlineTemplate(cfg.FilenameTemplate, templates[0]) + "." + cfg.CodeFileExtension
 			outputPath = filepath.Join(outputPath, fname)
 		}
 
@@ -143,8 +150,8 @@ func processMany(cfg conf.Configuration, templates []*data.Template) {
 
 				filename := filepath.Join(fullPath, sctemplate.Item.CleanName+"."+cfg.CodeFileExtension)
 				if cfg.FilenameTemplate != "" {
-					name := processTemplate(cfg.FilenameTemplate, sctemplate)
-					filename = filepath.Join(fullPath, name + "." + cfg.CodeFileExtension)
+					name := processInlineTemplate(cfg.FilenameTemplate, sctemplate)
+					filename = filepath.Join(fullPath, name+"."+cfg.CodeFileExtension)
 				}
 
 				if err := writeFile(filename, buffer.Bytes()); err != nil {
@@ -158,7 +165,7 @@ func processMany(cfg conf.Configuration, templates []*data.Template) {
 }
 
 func writeFile(path string, bytes []byte) error {
-	dir,_ := filepath.Split(path)
+	dir, _ := filepath.Split(path)
 	os.MkdirAll(dir, os.ModePerm)
 	return ioutil.WriteFile(path, bytes, os.ModePerm)
 }

@@ -16,7 +16,7 @@ var timefmt string = "2006-01-02 15:04:05.999"
 func getItemsForGeneration(cfg conf.Configuration) ([]*data.Item, error) {
 	sqlfmt := `
         select 
-            cast(Items.ID as varchar(100)) ID, Name, replace(replace(Name, ' ', ''), '-', '') as NameNoSpaces, cast(TemplateID as varchar(100)) TemplateID, cast(ParentID as varchar(100)) ParentID, cast(MasterID as varchar(100)) as MasterID, Items.Created, Items.Updated, isnull(sf.Value, '') as Type, isnull(Replace(Replace(b.Value, '}',''), '{', ''), '') as BaseTemplates
+            cast(Items.ID as varchar(100)) ID, Name, cast(TemplateID as varchar(100)) TemplateID, cast(ParentID as varchar(100)) ParentID, cast(MasterID as varchar(100)) as MasterID, Items.Created, Items.Updated, isnull(sf.Value, '') as Type, isnull(Replace(Replace(UPPER(b.Value), '}',''), '{', ''), '') as BaseTemplates
         from
             Items
                 left join SharedFields sf
@@ -36,7 +36,9 @@ func getItemsForGeneration(cfg conf.Configuration) ([]*data.Item, error) {
 
 		if records, err := rs.GetResultSet(db, sqlstr); err == nil {
 			for _, row := range records {
-				item := &data.Item{ID: row["ID"].(string), Name: row["Name"].(string), CleanName: row["NameNoSpaces"].(string), TemplateID: row["TemplateID"].(string), ParentID: row["ParentID"].(string), MasterID: row["MasterID"].(string), Created: row["Created"].(time.Time), Updated: row["Updated"].(time.Time), FieldType: row["Type"].(string), BaseTemplates: row["BaseTemplates"].(string)}
+				name := row["Name"].(string)
+				cleanName := strings.Replace(strings.Replace(strings.Title(name), "-", "", -1), " ", "", -1)
+				item := &data.Item{ID: row["ID"].(string), Name: name, CleanName: cleanName, TemplateID: row["TemplateID"].(string), ParentID: row["ParentID"].(string), MasterID: row["MasterID"].(string), Created: row["Created"].(time.Time), Updated: row["Updated"].(time.Time), FieldType: row["Type"].(string), BaseTemplates: row["BaseTemplates"].(string)}
 				items = append(items, item)
 			}
 		} else {
@@ -61,13 +63,10 @@ func getItemsForSerialization(cfg conf.Configuration) ([]*data.FieldValue, error
             select
                 ID, ItemId, FieldId, Value, Version, Language, 'VersionedFields'
             from VersionedFields
-                where Language = 'en'
-                and Version = 1
             union
             select
                 ID, ItemId, FieldId, Value, 1, Language, 'UnversionedFields'
             from UnversionedFields
-                where Language = 'en'
         )
 
         select cast(fv.ValueID as varchar(100)) as ValueID, cast(fv.ItemID as varchar(100)) as ItemID, f.Name as FieldName, cast(fv.FieldID as varchar(100)) as FieldID, fv.Value, fv.Version, fv.Language, fv.Source
@@ -203,25 +202,25 @@ func getSqlForFields(fields []data.UpdateField) []string {
 }
 
 func cleanOrphanedItems(cfg conf.Configuration) (rows int64) {
-    subq := "select ID from Items where ParentID not in (select ID from Items) and ParentID <> '00000000-0000-0000-0000-000000000000'"
-    sqlfmt := `
+	subq := "select ID from Items where ParentID not in (select ID from Items) and ParentID <> '00000000-0000-0000-0000-000000000000'"
+	sqlfmt := `
         delete from SharedFields where ItemID in ( %[1]v )
         delete from VersionedFields where ItemID in ( %[1]v )
         delete from UnversionedFields where ItemID in ( %[1]v )
         delete from Items where ID in ( %[1]v )
     `
 
-    sqlstr := fmt.Sprintf(sqlfmt, subq)
+	sqlstr := fmt.Sprintf(sqlfmt, subq)
 
-    if db, err := sql.Open("mssql", cfg.ConnectionString); err == nil {
-        defer db.Close()
+	if db, err := sql.Open("mssql", cfg.ConnectionString); err == nil {
+		defer db.Close()
 
-        if result, err := db.Exec(sqlstr); err == nil {
-            rows, _ = result.RowsAffected()
-        } else {
-            fmt.Println("cleaning orphaned items", err)
-        }
-    }
+		if result, err := db.Exec(sqlstr); err == nil {
+			rows, _ = result.RowsAffected()
+		} else {
+			fmt.Println("cleaning orphaned items", err)
+		}
+	}
 
-    return  
+	return
 }

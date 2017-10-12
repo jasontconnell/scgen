@@ -37,13 +37,13 @@ type Configuration struct {
 	Generate    bool `json:"generate"`
 	Deserialize bool `json:"deserialize"`
 
-	BasePath       string   `json:"basePath"`
-	BasePaths      []string `json:"basePaths"`
-	FileModeString string   `json:"filemode"`
-	OutputPath     string   `json:"outputPath"`
-	FilenameTemplate     string   `json:"filenameTemplate"`
-	GroupTemplatesBy string `json:"groupTemplatesBy"`
-	TemplatePaths  []TemplatePath `json:"templatePaths"`
+	BasePath         string         `json:"basePath"`
+	BasePaths        []string       `json:"basePaths"`
+	FileModeString   string         `json:"filemode"`
+	OutputPath       string         `json:"outputPath"`
+	FilenameTemplate string         `json:"filenameTemplate"`
+	GroupTemplatesBy string         `json:"groupTemplatesBy"`
+	TemplatePaths    []TemplatePath `json:"templatePaths"`
 
 	// not in config file
 	FileMode FileMode
@@ -56,10 +56,11 @@ type FieldType struct {
 }
 
 type TemplatePath struct {
-	Path string `json:"path"`
-	Namespace string `json:"namespace"`
+	Path               string `json:"path"`
+	Namespace          string `json:"namespace"`
 	AlternateNamespace string `json:"alternateNamespace"`
-	Ignore bool `json:"ignore"`
+	Ignore             bool   `json:"ignore"`
+	StaticNamespace    bool   `json:"staticNamespace"` // give all templates under template path the same namespace
 }
 
 func LoadConfig(file string) Configuration {

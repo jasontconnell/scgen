@@ -7,7 +7,6 @@ import (
 	"sort"
 	"strings"
 	"utility"
-	//"fmt"
 )
 
 func buildTree(items []*data.Item, templateID, templateFolderID, templateFieldID, templateSectionID string) (root *data.Item, itemMap map[string]*data.Item, err error) {
@@ -132,24 +131,37 @@ func getField(cfg conf.Configuration, item *data.Item) data.Field {
 
 func updateTemplateNamespaces(cfg conf.Configuration, templates []*data.Template) {
 	for _, template := range templates {
-		removeBasePath := template.Item.Path
-		for _, basePath := range cfg.BasePaths {
-			removeBasePath = strings.TrimPrefix(removeBasePath, basePath)
+		mostMatch := ""
+		for _, templatePath := range cfg.TemplatePaths {
+			if strings.HasPrefix(template.Item.Path, templatePath.Path) && len(template.Item.Path) > len(mostMatch) {
+				mostMatch = templatePath.Path
+			}
 		}
-		removeBasePath, _ = path.Split(removeBasePath)
-		nospaces := strings.Replace(strings.TrimSuffix(removeBasePath, "/"), " ", "", -1)
-		template.Namespace = strings.Replace(nospaces, "/", ".", -1)
+
+		rootPath, _ := path.Split(mostMatch)
+		rootPath = string(template.Item.Path[len(rootPath)-1:])
+
+		nospaces := strings.Replace(strings.TrimSuffix(rootPath, "/"), " ", "", -1)
+		nospaces = strings.Replace(nospaces, "-", "", -1)
+		topFolder := path.Dir(nospaces)
+		template.Namespace = strings.Replace(topFolder, "/", ".", -1)
 		ns := ""
 		ans := ""
+		staticns := false
 		for _, templatePath := range cfg.TemplatePaths {
-			if strings.HasPrefix(template.Item.Path, templatePath.Path){
+			if strings.HasPrefix(template.Item.Path, templatePath.Path) {
 				ns = templatePath.Namespace
 				ans = templatePath.AlternateNamespace
-				break
+				staticns = templatePath.StaticNamespace
 			}
 		}
 		rns := template.Namespace
-		template.Namespace = ns + strings.Replace(rns, "/", ".", -1)
+
+		if !staticns {
+			template.Namespace = ns + strings.Replace(rns, "/", ".", -1)
+		} else {
+			template.Namespace = ns
+		}
 		template.AlternateNamespace = ans + strings.Replace(rns, "/", ".", -1)
 	}
 }

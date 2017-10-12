@@ -60,7 +60,7 @@ type Template struct {
 	Namespace            string
 	AlternateNamespace   string
 	ReferencedNamespaces []string
-	Generate bool
+	Generate             bool
 }
 
 type Field struct {

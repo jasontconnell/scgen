@@ -1,0 +1,10 @@
+{
+    "generate": true,
+    "filemode": "one",
+    "outputPath": "c:\\Jason\\DelawareNorth\\Fields.cs",
+
+    "codeTemplate": "tmpl\\fields.txt",
+    "templatePaths": [
+        { "path": "/sitecore/templates/User Defined/Site Specific/Replicator Core", "namespace": "DD.Common.Gaming" }
+    ]
+}

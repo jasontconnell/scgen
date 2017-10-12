@@ -25,7 +25,7 @@
         { "typeName": "General Link", "codeType": "Link", "suffix": "" },
         { "typeName": "General Link with Search", "codeType": "Link", "suffix": "" },
         { "typeName": "Internal Link", "codeType": "string", "suffix": "" },
-        { "typeName": "Number", "codeType": "float", "suffix": "" },
+        { "typeName": "Number", "codeType": "int", "suffix": "" },
         { "typeName": "Integer", "codeType": "int", "suffix": "" },
         { "typeName": "Readonly Checkbox", "codeType": "bool", "suffix": "" }
     ],
