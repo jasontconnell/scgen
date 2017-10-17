@@ -45,6 +45,10 @@ type Configuration struct {
 	GroupTemplatesBy string         `json:"groupTemplatesBy"`
 	TemplatePaths    []TemplatePath `json:"templatePaths"`
 
+	Remap          bool            `json:"remap"`
+	RemapSettings  []RemapSettings `json:"remapSettings"`
+	RemapApplyPath string          `json:"remapApplyPath"`
+
 	// not in config file
 	FileMode FileMode
 }
@@ -61,6 +65,17 @@ type TemplatePath struct {
 	AlternateNamespace string `json:"alternateNamespace"`
 	Ignore             bool   `json:"ignore"`
 	StaticNamespace    bool   `json:"staticNamespace"` // give all templates under template path the same namespace
+}
+
+type RemapSettings struct {
+	OriginalPath   string `json:"originalPath"`
+	ClonedPath     string `json:"clonedPath"`
+	OriginalPrefix string `json:"originalPrefix"`
+	ClonedPrefix   string `json:"clonedPrefix"`
+
+	// future use
+	OriginalSuffix string `json:"originalSuffix"`
+	ClonedSuffix   string `json:"clonedSuffix"`
 }
 
 func LoadConfig(file string) Configuration {

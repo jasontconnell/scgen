@@ -48,8 +48,8 @@ func (p Processor) Process() ProcessResults {
 		}
 
 		var serialList []*data.SerializedItem
-		if p.Config.Serialize || p.Config.Deserialize {
-			fmt.Println("Getting items for serialization / deserialization")
+		if p.Config.Serialize || p.Config.Deserialize || p.Config.Remap {
+			fmt.Println("Getting items for serialization / deserialization / remapping")
 			serialList = getSerializeItems(p.Config, itemMap)
 		}
 
@@ -66,8 +66,18 @@ func (p Processor) Process() ProcessResults {
 			updateItems, updateFields := filterUpdateItems(serialList, deserializeItems)
 			results.ItemsDeserialized = len(updateItems)
 			results.FieldsDeserialized = len(updateFields)
-			deserialize(p.Config, updateItems, updateFields)
+			update(p.Config, updateItems, updateFields)
 			results.OrphansCleared = cleanOrphanedItems(p.Config)
+		}
+
+		if p.Config.Remap {
+			fmt.Println("Getting remapped ids")
+			updateMap := processRemap(p.Config, itemMap)
+			fmt.Println("Filtering for items to remap")
+			remapItems := filterRemap(p.Config, serialList)
+			fmt.Println("Getting list of update items")
+			updateItems, updateFields := replaceValues(p.Config, remapItems, updateMap)
+			update(p.Config, updateItems, updateFields)
 		}
 
 	} else {

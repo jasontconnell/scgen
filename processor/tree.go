@@ -196,6 +196,10 @@ func filterItemMap(cfg conf.Configuration, items map[string]*data.Item) map[stri
 			}
 		}
 
+		if cfg.Remap && !include {
+			include = strings.HasPrefix(item.Path, cfg.RemapApplyPath)
+		}
+
 		if include {
 			filteredMap[item.ID] = item
 		}

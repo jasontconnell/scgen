@@ -96,6 +96,7 @@ const (
 	Insert UpdateType = "insert"
 	Update UpdateType = "update"
 	Delete UpdateType = "delete"
+	Ignore UpdateType = "ignore"
 )
 
 type UpdateItem struct {

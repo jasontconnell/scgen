@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"scgen/conf"
 	"scgen/data"
-	"strings"
+	//"strings"
 )
 
 func getSerializeItems(cfg conf.Configuration, itemMap map[string]*data.Item) []*data.SerializedItem {
@@ -50,8 +50,9 @@ func serializeItems(cfg conf.Configuration, list []*data.SerializedItem) error {
 	sepend := "___VALUEEND___"
 
 	for _, item := range list {
-		path := item.Item.Path
-		path = strings.Replace(path, "/", "\\", -1)
+		//path := item.Item.Path
+		//path = strings.Replace(path, "/", "\\", -1)
+		path := string(item.Item.ParentID[:1]) + "\\" + string(item.Item.ID[:1])
 		dir := filepath.Join(cfg.SerializationPath, path)
 
 		if err := os.MkdirAll(dir, os.ModePerm); err == nil {

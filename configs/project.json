@@ -37,6 +37,7 @@
         "/sitecore/layout/Layouts",
         "/sitecore/layout/Placeholder Settings",
         "/sitecore/layout/Renderings",
-        "/sitecore/templates/Branches/User Defined"
+        "/sitecore/templates/Branches/User Defined",
+        "/sitecore/content/Gaming-Core"
     ]
 }
