@@ -4,6 +4,21 @@ import (
 	"fmt"
 )
 
+type SerializedItem struct {
+	Item   *Item
+	Fields []SerializedField
+}
+
+type SerializedField struct {
+	FieldValueID string
+	FieldID      string
+	Name         string
+	Value        string
+	Version      int64
+	Language     string
+	Source       string
+}
+
 func (item SerializedItem) String() string {
 	fields := ""
 	for _, f := range item.Fields {
