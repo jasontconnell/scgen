@@ -48,6 +48,13 @@ These should just be in there and not changed.
 **This will generally use the same configuration as serialization, just work in updating the database instead of serializing to disk**
 1. _deserialize_: Turn on deserialization. This will update the database pointed to by connectionString with the paths that the tool finds to need updating. Deletes, Updates and Inserts are all possible. It will only perform these operations on items that need it.
 
+### Remapping configuration
+**Remapping is an advanced feature and pretty specific to my needs. We have a tree clone tool which will clone a tree then remap all ids. However we wanted to clone the templates and have the new tree, which was a content tree, be set to the new templates and fields. The remap functionality accomplishes that.**
+1. _remap_: Run the remap?  Bool
+2. _remapApplyPath_: The path to apply the remap settings.
+3. _remapSettings_: The collection of the original path, the cloned path, the original prefix and the cloned prefix.
+   * In our sitecore instance, we cloned the templates and renderings, and cloned the original content tree which was using all of the old templates and renderings. The templates and renderings were renamed from something like "Old Site Core" to "New Site Core". Prefix was set to say "remove old site core from the old templates and renderings, and remove New Site Core from the new templates and renderings, then check the names, you should find a match for each template and rendering :)"  Once items are mapped, you just loop through the new site and update template ids and renderings on each item in the new tree. Done.
+
 ## Configuration Notes
 Configuration files can be broken up by function. This way you can run only the tasks you want when you run the program. The only argument to the program is "-c" for config files. This can be a csv list of configs.
 
