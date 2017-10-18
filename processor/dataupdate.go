@@ -21,7 +21,7 @@ func update(cfg conf.Configuration, items []data.UpdateItem, fields []data.Updat
 	for i := 0; i < 2; i++ {
 		grp := items[i*itemGroupSize : (i+1)*itemGroupSize]
 		go func() {
-			updateItems(cfg, grp)
+			updated += updateItems(cfg, grp)
 			wg.Done()
 		}()
 	}
@@ -30,7 +30,7 @@ func update(cfg conf.Configuration, items []data.UpdateItem, fields []data.Updat
 	for i := 0; i < 4; i++ {
 		grp := fields[i*fieldGroupSize : (i+1)*fieldGroupSize]
 		go func() {
-			updateFields(cfg, grp)
+			updated += updateFields(cfg, grp)
 			wg.Done()
 		}()
 	}
