@@ -50,6 +50,7 @@ These should just be in there and not changed.
 
 ### Remapping configuration
 **Remapping is an advanced feature and pretty specific to my needs. We have a tree clone tool which will clone a tree then remap all ids. However we wanted to clone the templates and have the new tree, which was a content tree, be set to the new templates and fields. The remap functionality accomplishes that.**
+
 1. _remap_: Run the remap?  Bool
 2. _remapApplyPath_: The path to apply the remap settings.
 3. _remapSettings_: The collection of the original path, the cloned path, the original prefix and the cloned prefix.
