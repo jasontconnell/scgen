@@ -10,11 +10,6 @@ These should just be in there and not changed.
 3. _templateSection_: The ID for the Template Section template (string, Guid)
 4. _templateField_: The ID for the Template Field template (string, Guid)
 
-### More configurations that won't change much
-1. _serializationIgnoredFields_:  Fields to ignore when serializing, deserializing items to/from disk. (Array of string)
-2. _serializationExtension_: Extension for serialized items. Should remain consistent once started.  (string, e.g. "txt")
-3. _defaultFieldType_: This will depend on code language which will typically be C#. When a field type doesn't match (string, e.g. "string" [C# code type "System.String"]
-
 ### Project based configurations
 1. _connectionString_: Database connection string. Usually to Sitecore's "master" database. Use "server" instead of "data source". There's no restriction on which database you use. (e.g. user id=sa;password=pwd;server=localhost\\MSSQL_2014;database=Sitecore_master ). 
 2. _fieldTypes_: This is a list of how you would like Sitecore field types to be represented in code.
@@ -22,21 +17,32 @@ These should just be in there and not changed.
    * codeType: How this type should be represented in code, e.g. List<Guid>
    * suffix: For some field types, it's useful to add a suffix, for instance I use "ID" for items that qualify to a Guid. Or IDs for List of Guids.
    * ex. { "typeName": "Treelist", "codeType": "List<Guid>", "suffix": "IDs" }
-3. _basePaths_: This is the list of all base paths that should be included in generation de/serialization
+3. _defaultFieldType_: Default type to use if the field type isn't found. Default "string"
+4. _basePaths_: This is the list of all base paths that should be included in de/serialization
    * ex. "basePaths": [ "/sitecore/templates/User Defined", "/sitecore/layout/Layouts", "/sitecore/layout/Renderings", "/sitecore/templates/Branches/User Defined" ]
 
 **To enable any feature you just need to provide _true_ for the appropriate setting**
 
 ### Serialization configuration
 1. _serialize_: Serialize items from the database. All of the serialization settings should be provided. (bool. True or false. Not provided is the same as false)
+2. _serializationPath_: Output path for serialization
+3. _serializationExtension_: Extension to use for serialized files. Default ".txt"
+4. _serializationIgnoredFields_:  Fields to ignore when serializing, deserializing items to/from disk. (Array of string)
+
 
 ### Code Generation configuration
 1. _generate_: Generate code for templates in the database. It will search all items in "basePaths" for Templates
-2. _baseNamespace_: Starting namespace prefix, e.g. DD.Domain.Models.Glass
-3. _filemode_: Generate one file or generate a directory structure based on sitecore item hierarchy of templates. (string, "one" or "many")
-4. _outputPath_: If filemode is "one", this should be a file. If "many", it should be a directory. One file is preferred in a C# setting since files would have to be added to the csproj file each time a new template was created.
-5. _codeTemplate_: This is the path to the Go text template. You can generally use the same one for each filemode.
-6. _codeFileExtension_: This is only used in "many" file mode. No period is needed. (e.g. "cs")
+2. _filemode_: Generate one file or generate a directory structure based on sitecore item hierarchy of templates. (string, "one" or "many")
+3. _outputPath_: If filemode is "one", this should be a file. If "many", it should be a directory. One file is preferred in a C# setting since files would have to be added to the csproj file each time a new template was created.
+4. _codeTemplate_: This is the path to the Go text template. You can generally use the same one for each filemode.
+5. _codeFileExtension_: This is only used in "many" file mode. No period is needed. (e.g. "cs")
+6. _templatePaths_: The template paths and their respective namespaces
+   * path, namespace, alternateNamespace, ignore
+   * Path and Namespace are pretty straightforward.
+   * alternateNamespace is used when generating something other than data model classes or interfaces. Like controllers or view models. You would want the namespace to be generated the same for the data models, but for the view model you would want a different namespace.
+   * ignore is used when you need those templates available still, as they are referenced by non-ignored templates still. We don't want to generate code for them, but they're still referenced and should be there.
+   * ignore is also helpful when you are generating controllers, not every template has a rendering.
+   * It turns out trying to generate more than just the data model and view model is a bit rough. It would need a way to get paths to views. Some things are better left not generated. It would blow up the configuration and the complexity of the application.
 
 ### Deserialization configuration
 **This will generally use the same configuration as serialization, just work in updating the database instead of serializing to disk**

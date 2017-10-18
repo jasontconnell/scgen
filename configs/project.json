@@ -1,5 +1,4 @@
 {
-    "connectionString": "user id=dngaming;password=J2!-9w&rGx8M;server=50.226.142.72;database=DelawareNorth_Gaming_Dev_Master",
     "fieldTypes": [
         { "typeName": "Checkbox", "codeType": "bool", "suffix": "" },
         { "typeName": "Date", "codeType": "DateTime", "suffix": "" },
