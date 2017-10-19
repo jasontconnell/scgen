@@ -4,7 +4,6 @@ import (
 	"scgen/conf"
 	"scgen/data"
 	"strings"
-	//"fmt"
 	"regexp"
 )
 

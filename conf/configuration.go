@@ -1,9 +1,9 @@
 package conf
 
 import (
-	"conf"
+	"github.com/jasontconnell/conf"
 	"path/filepath"
-	"reflecthelper"
+	"github.com/jasontconnell/refhelp"
 	"strings"
 )
 
