@@ -25,6 +25,7 @@ func getItemsForGeneration(cfg conf.Configuration) ([]*data.Item, error) {
                 left join SharedFields b
                     on Items.ID = b.ItemID
                         and b.FieldId = '12C33F3F-86C5-43A5-AEB4-5598CEC45116'
+            order by Items.Name
     `
 
 	sqlstr := fmt.Sprintf(sqlfmt)
