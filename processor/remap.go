@@ -1,10 +1,10 @@
 package processor
 
 import (
+	"regexp"
 	"scgen/conf"
 	"scgen/data"
 	"strings"
-	"regexp"
 )
 
 var guidReg *regexp.Regexp = regexp.MustCompile("[a-zA-Z0-9\\-]{32,36}")

@@ -2,8 +2,8 @@ package conf
 
 import (
 	"github.com/jasontconnell/conf"
-	"path/filepath"
 	"github.com/jasontconnell/refhelp"
+	"path/filepath"
 	"strings"
 )
 

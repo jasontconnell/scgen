@@ -49,11 +49,11 @@ func serializeItems(cfg conf.Configuration, list []*data.SerializedItem) error {
 
 	var wg sync.WaitGroup
 	wg.Add(6)
-	groupSize := len(list) / 6 + 1
+	groupSize := len(list)/6 + 1
 
 	for i := 0; i < 6; i++ {
-		grp := list[(i*groupSize) : (i+1) * groupSize]
-		go func(grplist []*data.SerializedItem){
+		grp := list[(i * groupSize) : (i+1)*groupSize]
+		go func(grplist []*data.SerializedItem) {
 			serializeItemGroup(cfg, grplist)
 			wg.Done()
 		}(grp)
