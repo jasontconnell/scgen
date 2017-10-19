@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"scgen/conf"
 	"scgen/data"
-	//"strings"
+	"sync"
 )
 
 func getSerializeItems(cfg conf.Configuration, itemMap map[string]*data.Item) []*data.SerializedItem {
@@ -46,10 +46,32 @@ func getSerializeItems(cfg conf.Configuration, itemMap map[string]*data.Item) []
 
 func serializeItems(cfg conf.Configuration, list []*data.SerializedItem) error {
 	os.RemoveAll(cfg.SerializationPath)
+
+	var wg sync.WaitGroup
+	wg.Add(6)
+	groupSize := len(list) / 6 + 1
+
+	for i := 0; i < 6; i++ {
+		grp := list[(i*groupSize) : (i+1) * groupSize]
+		go func(grplist []*data.SerializedItem){
+			serializeItemGroup(cfg, grplist)
+			wg.Done()
+		}(grp)
+	}
+
+	wg.Wait()
+
+	return nil
+}
+
+func serializeItemGroup(cfg conf.Configuration, list []*data.SerializedItem) error {
 	sepstart := "__VALUESTART__"
 	sepend := "___VALUEEND___"
 
 	for _, item := range list {
+		if item == nil {
+			continue
+		}
 		//path := item.Item.Path
 		//path = strings.Replace(path, "/", "\\", -1)
 		path := string(item.Item.ParentID[:1]) + "\\" + string(item.Item.ID[:1])

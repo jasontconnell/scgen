@@ -25,7 +25,6 @@ func getItemsForGeneration(cfg conf.Configuration) ([]*data.Item, error) {
                 left join SharedFields b
                     on Items.ID = b.ItemID
                         and b.FieldId = '12C33F3F-86C5-43A5-AEB4-5598CEC45116'
-        order by ParentID
     `
 
 	sqlstr := fmt.Sprintf(sqlfmt)
@@ -76,7 +75,7 @@ func getItemsForSerialization(cfg conf.Configuration) ([]*data.FieldValue, error
                             on fv.FieldID = f.ID
                 where
                     f.Name not in (%[1]v)
-                order by f.Name;
+            order by fv.Source, fv.FieldID;
     `
 
 	fieldValues := []*data.FieldValue{}

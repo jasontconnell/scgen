@@ -1,6 +1,6 @@
 {
     "remap": true,
-    "remapApplyPath": "/sitecore/content/Gaming-Core",
+    "remapApplyPath": "/sitecore/content/Replicator Core",
     "remapSettings": [
         { 
             "originalPath": "/sitecore/templates/User Defined/Site Specific/Gaming/Core", 
