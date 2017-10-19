@@ -19,20 +19,20 @@ func update(cfg conf.Configuration, items []data.UpdateItem, fields []data.Updat
 
 	// items - 2 processes
 	for i := 0; i < 2; i++ {
-		grp := items[i*itemGroupSize : (i+1)*itemGroupSize]
-		go func() {
+		grplist := items[i*itemGroupSize : (i+1)*itemGroupSize]
+		go func(grp []data.UpdateItem) {
 			updated += updateItems(cfg, grp)
 			wg.Done()
-		}()
+		}(grplist)
 	}
 
 	// fields - 4 processes
 	for i := 0; i < 4; i++ {
-		grp := fields[i*fieldGroupSize : (i+1)*fieldGroupSize]
-		go func() {
+		grplist := fields[i*fieldGroupSize : (i+1)*fieldGroupSize]
+		go func(grp []data.UpdateField) {
 			updated += updateFields(cfg, grp)
 			wg.Done()
-		}()
+		}(grplist)
 	}
 
 	wg.Wait()
