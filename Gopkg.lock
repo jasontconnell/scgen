@@ -21,6 +21,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/jasontconnell/utility"
+  packages = ["."]
+  revision = "780c5715062c9484d520226e7671b6a736ad26f9"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/crypto"
   packages = ["md4"]
   revision = "959b3afb35f6a769732990dceca09da087ee47f5"
@@ -34,6 +40,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a44b23d77b6b28bb6e3ac5a396c764e905690bef2e626f2f3ad79ddbe3da50b9"
+  inputs-digest = "a2e7b13c40230f2d9078b3d8aaf085b7c6c06e1b478c036657a27adcffc79c40"
   solver-name = "gps-cdcl"
   solver-version = 1

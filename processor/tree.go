@@ -6,7 +6,7 @@ import (
 	"scgen/data"
 	"sort"
 	"strings"
-	"utility"
+	"github.com/jasontconnell/utility"
 )
 
 func buildTree(items []*data.Item, templateID, templateFolderID, templateFieldID, templateSectionID string) (root *data.Item, itemMap map[string]*data.Item, err error) {
