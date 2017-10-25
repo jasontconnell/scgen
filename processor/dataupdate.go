@@ -78,7 +78,7 @@ func updateFields(cfg conf.Configuration, fields []data.UpdateField) int64 {
 }
 
 var updateitemfmt string = "update Items set Name = '%[1]v', TemplateID = '%[2]v', ParentID = '%[3]v', MasterID = '%[4]v' where ID = '%[5]v'"
-var insertitemfmt string = "insert into Items (ID, Name, TemplateID, ParentID, MasterID, Created, Updated, DAC_index) values ('%[5]v', '%[1]v', '%[2]v', '%[3]v', '%[5]v', getdate(), getdate(), null)"
+var insertitemfmt string = "insert into Items (ID, Name, TemplateID, ParentID, MasterID, Created, Updated, DAC_index) values ('%[5]v', '%[1]v', '%[2]v', '%[3]v', '%[4]v', getdate(), getdate(), null)"
 var deleteitemfmt string = "delete from Items where ID = '%v'"
 
 func getSqlForItems(items []data.UpdateItem) []string {
