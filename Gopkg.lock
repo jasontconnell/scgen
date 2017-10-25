@@ -23,7 +23,7 @@
   branch = "master"
   name = "github.com/jasontconnell/utility"
   packages = ["."]
-  revision = "780c5715062c9484d520226e7671b6a736ad26f9"
+  revision = "de2b5646569ccca1032f9df70dfc92320ea216d9"
 
 [[projects]]
   branch = "master"
