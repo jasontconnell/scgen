@@ -1,0 +1,25 @@
+{
+    "remap": true,
+    "remapApplyPath": "/sitecore/content/Replicator Core",
+    "remapSettings": [
+        { 
+            "originalPath": "/sitecore/templates/User Defined/Site Specific/Gaming/Core", 
+            "clonedPath": "/sitecore/templates/User Defined/Site Specific/Replicator Core", 
+            "originalPrefix": "Core",
+            "clonedPrefix": "Replicator Core"
+        },
+        { 
+            "originalPath": "/sitecore/layout/Renderings/Site Specific/Gaming/Core", 
+            "clonedPath": "/sitecore/layout/Renderings/Site Specific/Replicator Core", 
+            "originalPrefix": "Core",
+            "clonedPrefix": "Replicator Core"
+        },
+        { 
+            "originalPath": "/sitecore/templates/User Defined/Site Specific/Gaming/Southland", 
+            "clonedPath": "/sitecore/templates/User Defined/Site Specific/Replicator Core", 
+            "originalPrefix": "Southland",
+            "clonedPrefix": "Replicator Core"
+        }
+    ],
+    "remapComments": "possibly do the same thing with prefixes and suffixes, and occurrences of strings showing up in other parts of the value"
+}

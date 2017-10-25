@@ -1,9 +1,9 @@
 package conf
 
 import (
-	"conf"
-	"path/filepath"
+	"github.com/jasontconnell/conf"
 	"github.com/jasontconnell/refhelp"
+	"path/filepath"
 	"strings"
 )
 
@@ -37,13 +37,17 @@ type Configuration struct {
 	Generate    bool `json:"generate"`
 	Deserialize bool `json:"deserialize"`
 
-	BasePath       string   `json:"basePath"`
-	BasePaths      []string `json:"basePaths"`
-	FileModeString string   `json:"filemode"`
-	OutputPath     string   `json:"outputPath"`
-	FilenameTemplate     string   `json:"filenameTemplate"`
-	GroupTemplatesBy string `json:"groupTemplatesBy"`
-	TemplatePaths  []TemplatePath `json:"templatePaths"`
+	BasePath         string         `json:"basePath"`
+	BasePaths        []string       `json:"basePaths"`
+	FileModeString   string         `json:"filemode"`
+	OutputPath       string         `json:"outputPath"`
+	FilenameTemplate string         `json:"filenameTemplate"`
+	GroupTemplatesBy string         `json:"groupTemplatesBy"`
+	TemplatePaths    []TemplatePath `json:"templatePaths"`
+
+	Remap          bool            `json:"remap"`
+	RemapSettings  []RemapSettings `json:"remapSettings"`
+	RemapApplyPath string          `json:"remapApplyPath"`
 
 	// not in config file
 	FileMode FileMode
@@ -56,10 +60,22 @@ type FieldType struct {
 }
 
 type TemplatePath struct {
-	Path string `json:"path"`
-	Namespace string `json:"namespace"`
+	Path               string `json:"path"`
+	Namespace          string `json:"namespace"`
 	AlternateNamespace string `json:"alternateNamespace"`
-	Ignore bool `json:"ignore"`
+	Ignore             bool   `json:"ignore"`
+	StaticNamespace    bool   `json:"staticNamespace"` // give all templates under template path the same namespace
+}
+
+type RemapSettings struct {
+	OriginalPath   string `json:"originalPath"`
+	ClonedPath     string `json:"clonedPath"`
+	OriginalPrefix string `json:"originalPrefix"`
+	ClonedPrefix   string `json:"clonedPrefix"`
+
+	// future use
+	OriginalSuffix string `json:"originalSuffix"`
+	ClonedSuffix   string `json:"clonedSuffix"`
 }
 
 func LoadConfig(file string) Configuration {

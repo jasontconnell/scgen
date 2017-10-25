@@ -6,7 +6,6 @@
     "codeTemplate": "tmpl\\template.txt",
     "codeFileExtension": "cs",
     "templatePaths": [
-        { "path": "/sitecore/templates/User Defined/Global", "namespace": "DD.Data.GlassMapper" },
-        { "path": "/sitecore/templates/User Defined/Site Specific", "namespace": "DD.Data.GlassMapper" }
+        { "path": "/sitecore/templates/User Defined", "namespace": "DD.Data" }
     ]
 }

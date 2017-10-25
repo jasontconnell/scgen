@@ -17,16 +17,21 @@ namespace {{ .Namespace }} {
     public class {{ $template.Item.CleanName }}Constants {
         public const string TemplateIdString = "{{ $template.Item.ID }}";
         public static readonly ID TemplateId = new ID(TemplateIdString);
+
+        {{- if (len $template.Fields) gt 0 }}
+        {{- range $findex, $field := $template.Fields }}
+        public static readonly ID {{ $field.CleanName }}FieldId = new ID ("{{$field.Item.ID}}");
+        public const string {{$field.CleanName}}FieldName = "{{$field.CleanName}}";
+            {{end}}
+        {{- end}}
     }
 
     [SitecoreType(TemplateId={{ $template.Item.CleanName }}Constants.TemplateIdString)]
-    public partial interface I{{ $template.Item.CleanName }} : ISitecoreItem{{ if (len $template.BaseTemplates) gt 0 }}{{ range $bindex, $baseTemplate := $template.BaseTemplates }}, global::{{ $baseTemplate.Namespace}}.I{{ $baseTemplate.Item.CleanName}}{{end}}{{end}} {
-        {{ if (len $template.Fields) gt 0 }}
-        {{ range $findex, $field := $template.Fields }}
-            //{{$field.Item.ID}}
+    public partial interface I{{ $template.Item.CleanName }} : global::DD.Data.Models.Base.IBaseGlassItem{{ if (len $template.BaseTemplates) gt 0 }}{{ range $bindex, $baseTemplate := $template.BaseTemplates }}, global::{{ $baseTemplate.Namespace}}.I{{ $baseTemplate.Item.CleanName}}{{end}}{{end}} {
+        {{- if (len $template.Fields) gt 0 }}
+        {{- range $findex, $field := $template.Fields }}
             [SitecoreField("{{$field.Name}}")]
             {{ $field.CodeType}} {{ $field.CleanName }}{{ $field.Suffix }} { get; set; }{{end}}{{end}}
     }
 }
-
 {{end}}

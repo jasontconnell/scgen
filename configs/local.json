@@ -1,5 +1,4 @@
 {
-    "connectionString": "user id=sa;password=S4M3amg;server=localhost\\MSSQL_2014;database=DelawareNorth_Gaming_Southland_DEV_Master",
     "fieldTypes": [
         { "typeName": "Checkbox", "codeType": "bool", "suffix": "" },
         { "typeName": "Date", "codeType": "DateTime", "suffix": "" },

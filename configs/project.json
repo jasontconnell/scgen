@@ -1,5 +1,4 @@
 {
-    "connectionString": "user id=dngaming;password=J2!-9w&rGx8M;server=50.226.142.72;database=DelawareNorth_Gaming_Dev_Master",
     "fieldTypes": [
         { "typeName": "Checkbox", "codeType": "bool", "suffix": "" },
         { "typeName": "Date", "codeType": "DateTime", "suffix": "" },
@@ -25,7 +24,7 @@
         { "typeName": "General Link", "codeType": "Link", "suffix": "" },
         { "typeName": "General Link with Search", "codeType": "Link", "suffix": "" },
         { "typeName": "Internal Link", "codeType": "string", "suffix": "" },
-        { "typeName": "Number", "codeType": "float", "suffix": "" },
+        { "typeName": "Number", "codeType": "int", "suffix": "" },
         { "typeName": "Integer", "codeType": "int", "suffix": "" },
         { "typeName": "Readonly Checkbox", "codeType": "bool", "suffix": "" }
     ],
@@ -37,6 +36,7 @@
         "/sitecore/layout/Layouts",
         "/sitecore/layout/Placeholder Settings",
         "/sitecore/layout/Renderings",
-        "/sitecore/templates/Branches/User Defined"
+        "/sitecore/templates/Branches/User Defined",
+        "/sitecore/content/Replicator Core"
     ]
 }
