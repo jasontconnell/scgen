@@ -3,7 +3,7 @@ package conf
 import (
 	"conf"
 	"path/filepath"
-	"reflecthelper"
+	"github.com/jasontconnell/refhelp"
 	"strings"
 )
 
