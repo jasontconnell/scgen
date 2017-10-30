@@ -102,6 +102,9 @@ func getFieldsFromTemplate(cfg conf.Configuration, item *data.Item) []data.Field
 			fields = append(fields, tsfields...)
 		}
 	}
+	sort.Slice(fields, func(i, j int) bool {
+		return fields[i].Name < fields[j].Name
+		})
 	return fields
 }
 
