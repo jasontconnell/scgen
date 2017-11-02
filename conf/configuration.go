@@ -123,7 +123,7 @@ func LoadConfigs(workingDir, filecsv string) Configuration {
 }
 
 func Join(dest, src *Configuration) Configuration {
-	i := reflecthelper.Join(dest, src)
+	i := refhelp.Join(dest, src)
 	cfgptr := i.(*Configuration)
 
 	return *cfgptr

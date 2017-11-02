@@ -17,7 +17,7 @@
   branch = "master"
   name = "github.com/jasontconnell/refhelp"
   packages = ["."]
-  revision = "99047d850a3011ec2b03074452bfbfaf35009725"
+  revision = "b28d583a40a06be06fe495b3084310dd7baa427e"
 
 [[projects]]
   branch = "master"
@@ -29,13 +29,13 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["md4"]
-  revision = "959b3afb35f6a769732990dceca09da087ee47f5"
+  revision = "2509b142fb2b797aa7587dad548f113b2c0f20ce"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context"]
-  revision = "1087133bc4af3073e18add999345c6ae75918503"
+  revision = "c73622c77280266305273cb545f54516ced95b93"
 
 [solve-meta]
   analyzer-name = "dep"
