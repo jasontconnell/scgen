@@ -74,7 +74,7 @@ func getItemsForSerialization(cfg conf.Configuration) ([]*data.FieldValue, error
                             on fv.FieldID = f.ID
                 where
                     f.Name not in (%[1]v)
-            order by fv.Source, f.Name, fv.FieldID;
+            order by fv.Source, f.Name, fv.Language, fv.Version;
     `
 
 	fieldValues := []*data.FieldValue{}

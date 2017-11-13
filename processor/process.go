@@ -31,7 +31,7 @@ func (p Processor) Process() ProcessResults {
 
 		results.ItemsRead = len(itemMap)
 
-		itemMap = filterItemMap(p.Config, itemMap)
+		filteredMap := filterItemMap(p.Config, itemMap)
 
 		if p.Config.Generate {
 			templates := mapTemplatesAndFields(p.Config, root)
@@ -46,36 +46,37 @@ func (p Processor) Process() ProcessResults {
 			generate(p.Config, templates)
 		}
 
-		if p.Config.Serialize || p.Config.Deserialize || p.Config.Remap {
-			fmt.Println("Getting items for serialization / deserialization / remapping")
-			serialList := getSerializeItems(p.Config, itemMap)
+		if p.Config.Serialize {
+			serialList := getSerializeItems(p.Config, filteredMap)
+			fmt.Println("Serializing items")
+			serializeItems(p.Config, serialList)
+			results.ItemsSerialized = len(serialList)
+		}
 
-			if p.Config.Serialize {
-				fmt.Println("Serializing items")
-				serializeItems(p.Config, serialList)
-				results.ItemsSerialized = len(serialList)
-			}
+		if p.Config.Deserialize {
+			fmt.Println("Getting items for deserialization")
+			allList := getSerializeItems(p.Config, itemMap)
 
-			if p.Config.Deserialize {
-				fmt.Println("Getting items for deserialization")
-				deserializeItems := getItemsForDeserialization(p.Config)
-				fmt.Println(len(deserializeItems), "items for deserialization")
-				updateItems, updateFields := filterUpdateItems(serialList, deserializeItems)
-				results.ItemsDeserialized = len(updateItems)
-				results.FieldsDeserialized = len(updateFields)
-				update(p.Config, updateItems, updateFields)
-				results.OrphansCleared = cleanOrphanedItems(p.Config)
-			}
+			deserializeItems := getItemsForDeserialization(p.Config)
+			fmt.Println(len(deserializeItems), "items found on disc")
+			updateItems, updateFields := filterUpdateItems(filteredMap, allList, deserializeItems)
+			results.ItemsDeserialized = len(updateItems)
+			results.FieldsDeserialized = len(updateFields)
+			update(p.Config, updateItems, updateFields)
+			results.OrphansCleared = cleanOrphanedItems(p.Config)
+		}
 
-			if p.Config.Remap {
-				fmt.Println("Getting remapped ids")
-				updateMap := processRemap(p.Config, itemMap)
-				fmt.Println("Filtering for items to remap")
-				remapItems := filterRemap(p.Config, serialList)
-				fmt.Println("Getting list of update items")
-				updateItems, updateFields := replaceValues(p.Config, remapItems, updateMap)
-				update(p.Config, updateItems, updateFields)
-			}
+		if p.Config.Remap {
+			fmt.Println("Getting items for remap")
+			remapList := getSerializeItems(p.Config, filteredMap)
+
+			fmt.Println("Getting remapped ids")
+			updateMap := processRemap(p.Config, filteredMap)
+			fmt.Println("Filtering for items to remap")
+			remapItems := filterRemap(p.Config, remapList)
+			fmt.Println("Getting list of update items")
+			updateItems, updateFields := replaceValues(p.Config, remapItems, updateMap)
+			update(p.Config, updateItems, updateFields)
 		}
 	} else {
 		fmt.Println("error occurred", err)

@@ -13,7 +13,7 @@ import (
 )
 
 var itemregex *regexp.Regexp = regexp.MustCompile(`ID: (.*?)\r\nName: (.*?)\r\nTemplateID: (.*?)\r\nParentID: (.*?)\r\nMasterID: (.*?)\n`)
-var fieldregex *regexp.Regexp = regexp.MustCompile(`(?s)__FIELD__\r\nID: (.*?)\r\nName: (.*?)\r\nVersion: (.*?)\r\nLanguage: (.*?)\r\nSource: (.*?)\r\n__VALUESTART__\n(.*?)\r\n___VALUEEND___\r\n\r\n`)
+var fieldregex *regexp.Regexp = regexp.MustCompile(`(?s)__FIELD__\r\nID: (.*?)\r\nName: (.*?)\r\nVersion: (.*?)\r\nLanguage: (.*?)\r\nSource: (.*?)\r\n__VALUESTART__\r\n(.*?)\r\n___VALUEEND___\r\n\r\n`)
 
 func getItemsForDeserialization(cfg conf.Configuration) []data.DeserializedItem {
 	list := []data.DeserializedItem{}
@@ -53,7 +53,7 @@ func getItemsForDeserialization(cfg conf.Configuration) []data.DeserializedItem 
 	return list
 }
 
-func filterUpdateItems(serialList []*data.SerializedItem, deserialList []data.DeserializedItem) ([]data.UpdateItem, []data.UpdateField) {
+func filterUpdateItems(filteredMap map[string]*data.Item, serialList []*data.SerializedItem, deserialList []data.DeserializedItem) ([]data.UpdateItem, []data.UpdateField) {
 	updateItems := []data.UpdateItem{}
 	updateFields := []data.UpdateField{}
 	itemMap := make(map[string]*data.SerializedItem)
@@ -79,7 +79,8 @@ func filterUpdateItems(serialList []*data.SerializedItem, deserialList []data.De
 	}
 
 	for _, sitem := range serialList {
-		if _, ok := deserializedItemMap[sitem.Item.ID]; !ok {
+		_, inFilter := filteredMap[sitem.Item.ID]
+		if _, ok := deserializedItemMap[sitem.Item.ID]; !ok && inFilter {
 			updateItems = append(updateItems, data.UpdateItem{ID: sitem.Item.ID, Name: sitem.Item.Name, TemplateID: sitem.Item.TemplateID, ParentID: sitem.Item.ParentID, MasterID: sitem.Item.MasterID, UpdateType: data.Delete})
 
 			for _, sfield := range sitem.Fields {
@@ -108,6 +109,8 @@ func filterUpdateItems(serialList []*data.SerializedItem, deserialList []data.De
 
 			if item.Item.Name != ditem.Name || item.Item.TemplateID != ditem.TemplateID || item.Item.MasterID != ditem.MasterID || item.Item.ParentID != ditem.ParentID {
 				updateItems = append(updateItems, data.UpdateItem{ID: ditem.ID, Name: ditem.Name, TemplateID: ditem.TemplateID, ParentID: ditem.ParentID, MasterID: ditem.MasterID, UpdateType: data.Update})
+
+				//fmt.Println("item found in db, updating", ditem.ID)
 			}
 		}
 	}

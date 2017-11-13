@@ -11,28 +11,51 @@ import (
 )
 
 func update(cfg conf.Configuration, items []data.UpdateItem, fields []data.UpdateField) int64 {
-	var updated int64 = 0
-	var wg sync.WaitGroup
-	wg.Add(6)
-	itemGroupSize := len(items)/2 + 1
-	fieldGroupSize := len(fields)/4 + 1
+	itemGroups := 2
+	itemGroupSize := len(items)/itemGroups + 1
 
-	// items - 2 processes
-	for i := 0; i < 2; i++ {
-		grplist := items[i*itemGroupSize : (i+1)*itemGroupSize]
-		go func(grp []data.UpdateItem) {
-			updated += updateItems(cfg, grp)
-			wg.Done()
-		}(grplist)
+	if len(items) < 100 {
+		itemGroups = 1
+		itemGroupSize = len(items)
 	}
 
-	// fields - 4 processes
-	for i := 0; i < 4; i++ {
-		grplist := fields[i*fieldGroupSize : (i+1)*fieldGroupSize]
-		go func(grp []data.UpdateField) {
-			updated += updateFields(cfg, grp)
-			wg.Done()
-		}(grplist)
+	fieldGroups := 4 
+	fieldGroupSize := len(fields)/fieldGroups + 1
+	if len(fields) < 100 {
+		fieldGroups = 1
+		fieldGroupSize = len(fields)
+	}
+
+	var updated int64 = 0
+	var wg sync.WaitGroup
+	
+
+	if len(items) > 0 {
+		wg.Add(itemGroups)
+		// items - 2 processes
+		for i := 0; i < itemGroups; i++ {
+			grplist := items[i*itemGroupSize : (i+1)*itemGroupSize]
+			go func(grp []data.UpdateItem) {
+				updated += updateItems(cfg, grp)
+				wg.Done()
+			}(grplist)
+		}
+	} else {
+		wg.Done()
+	}
+
+	if len(fields) > 0 {
+		wg.Add(fieldGroups)
+		// fields - 4 processes
+		for i := 0; i < fieldGroups; i++ {
+			grplist := fields[i*fieldGroupSize : (i+1)*fieldGroupSize]
+			go func(grp []data.UpdateField) {
+				updated += updateFields(cfg, grp)
+				wg.Done()
+			}(grplist)
+		}
+	} else {
+		wg.Done()
 	}
 
 	wg.Wait()
@@ -78,7 +101,7 @@ func updateFields(cfg conf.Configuration, fields []data.UpdateField) int64 {
 }
 
 var updateitemfmt string = "update Items set Name = '%[1]v', TemplateID = '%[2]v', ParentID = '%[3]v', MasterID = '%[4]v' where ID = '%[5]v'"
-var insertitemfmt string = "insert into Items (ID, Name, TemplateID, ParentID, MasterID, Created, Updated, DAC_index) values ('%[5]v', '%[1]v', '%[2]v', '%[3]v', '%[4]v', getdate(), getdate(), null)"
+var insertitemfmt string = "insert into Items (ID, Name, TemplateID, ParentID, MasterID, Created, Updated) values ('%[5]v', '%[1]v', '%[2]v', '%[3]v', '%[4]v', getdate(), getdate())"
 var deleteitemfmt string = "delete from Items where ID = '%v'"
 
 func getSqlForItems(items []data.UpdateItem) []string {
@@ -112,9 +135,9 @@ func getSqlForFields(fields []data.UpdateField) []string {
 	updatemap["UnversionedFields"] = "update %[1]v set Value = '%[4]v', Updated = getdate() where ItemID = '%[2]v' and FieldID = '%[3]v' and Language = '%[5]v'"
 	updatemap["VersionedFields"] = "update %[1]v set Value = '%[4]v', Updated = getdate() where ItemID = '%[2]v' and FieldID = '%[3]v' and Language = '%[5]v' and Version = %[6]v"
 
-	insertmap["SharedFields"] = "insert into %[1]v (ID, ItemID, FieldID, Value, Created, Updated, DAC_index) values (newid(), '%[2]v', '%[3]v', '%[4]v', getdate(), getdate(), null)"
-	insertmap["UnversionedFields"] = "insert into %[1]v (ID, ItemID, FieldID, Value, Language, Created, Updated, DAC_index) values (newid(), '%[2]v', '%[3]v', '%[4]v', '%[5]v', getdate(), getdate(), null)"
-	insertmap["VersionedFields"] = "insert into %[1]v (ID, ItemID, FieldID, Value, Language, Version, Created, Updated, DAC_index) values (newid(), '%[2]v', '%[3]v', '%[4]v', '%[5]v', '%[6]v', getdate(), getdate(), null)"
+	insertmap["SharedFields"] = "insert into %[1]v (ID, ItemID, FieldID, Value, Created, Updated) values (newid(), '%[2]v', '%[3]v', '%[4]v', getdate(), getdate())"
+	insertmap["UnversionedFields"] = "insert into %[1]v (ID, ItemID, FieldID, Value, Language, Created, Updated) values (newid(), '%[2]v', '%[3]v', '%[4]v', '%[5]v', getdate(), getdate())"
+	insertmap["VersionedFields"] = "insert into %[1]v (ID, ItemID, FieldID, Value, Language, Version, Created, Updated) values (newid(), '%[2]v', '%[3]v', '%[4]v', '%[5]v', '%[6]v', getdate(), getdate())"
 
 	deletemap["SharedFields"] = "delete from %[1]v where ItemID = '%[2]v' and FieldID = '%[3]v'"
 	deletemap["UnversionedFields"] = "delete from %[1]v where ItemID = '%[2]v' and FieldID = '%[3]v' and Language = '%[5]v'"
