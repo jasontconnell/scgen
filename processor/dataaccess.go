@@ -36,6 +36,9 @@ func getItemsForGeneration(cfg conf.Configuration) ([]*data.Item, error) {
 			for _, row := range records {
 				name := row["Name"].(string)
 				cleanName := strings.Replace(strings.Replace(strings.Title(name), "-", "", -1), " ", "", -1)
+				if strings.IndexAny(cleanName, "0123456789") == 0 {
+					cleanName = "_" + cleanName
+				}
 				item := &data.Item{ID: row["ID"].(string), Name: name, CleanName: cleanName, TemplateID: row["TemplateID"].(string), ParentID: row["ParentID"].(string), MasterID: row["MasterID"].(string), Created: row["Created"].(time.Time), Updated: row["Updated"].(time.Time), FieldType: row["Type"].(string), BaseTemplates: row["BaseTemplates"].(string)}
 				items = append(items, item)
 			}
