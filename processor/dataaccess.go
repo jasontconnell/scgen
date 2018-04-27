@@ -6,9 +6,9 @@ import (
 	_ "github.com/denisenkom/go-mssqldb"
 	"scgen/conf"
 	"scgen/data"
-	"scgen/rs"
 	"strings"
 	"time"
+    "github.com/jasontconnell/sqlhelp"
 )
 
 func getItemsForGeneration(cfg conf.Configuration) ([]*data.Item, error) {
@@ -32,7 +32,7 @@ func getItemsForGeneration(cfg conf.Configuration) ([]*data.Item, error) {
 	if db, err := sql.Open("mssql", cfg.ConnectionString); err == nil {
 		defer db.Close()
 
-		if records, err := rs.GetResultSet(db, sqlstr); err == nil {
+		if records, err := sqlhelp.GetResultSet(db, sqlstr); err == nil {
 			for _, row := range records {
 				name := row["Name"].(string)
 				cleanName := strings.Replace(strings.Replace(strings.Title(name), "-", "", -1), " ", "", -1)
@@ -86,7 +86,7 @@ func getItemsForSerialization(cfg conf.Configuration) ([]*data.FieldValue, error
 	if db, err := sql.Open("mssql", cfg.ConnectionString); err == nil {
 		defer db.Close()
 
-		if records, err := rs.GetResultSet(db, sqlstr); err == nil {
+		if records, err := sqlhelp.GetResultSet(db, sqlstr); err == nil {
 			for _, row := range records {
 				fieldValue := &data.FieldValue{
 					FieldValueID: row["ValueID"].(string),

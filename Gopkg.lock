@@ -4,20 +4,29 @@
 [[projects]]
   branch = "master"
   name = "github.com/denisenkom/go-mssqldb"
-  packages = ["."]
-  revision = "88555645b640cc621e32f8693d7586a1aa1575f4"
+  packages = [
+    ".",
+    "internal/cp"
+  ]
+  revision = "e32faac87a2220f9342289f2c3b567d1424b8ec5"
 
 [[projects]]
   branch = "master"
   name = "github.com/jasontconnell/conf"
   packages = ["."]
-  revision = "4f79c288deecce4d424a9726cfdbceba033652b2"
+  revision = "246c2addc6bb1dcb9209d6448fcd3d6ce8262483"
 
 [[projects]]
   branch = "master"
   name = "github.com/jasontconnell/refhelp"
   packages = ["."]
   revision = "b28d583a40a06be06fe495b3084310dd7baa427e"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/jasontconnell/sqlhelp"
+  packages = ["."]
+  revision = "24c77abbe705c4b0f603daaf33295f8a2f24ed1e"
 
 [[projects]]
   branch = "master"
@@ -29,17 +38,11 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["md4"]
-  revision = "2509b142fb2b797aa7587dad548f113b2c0f20ce"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/net"
-  packages = ["context"]
-  revision = "c73622c77280266305273cb545f54516ced95b93"
+  revision = "b49d69b5da943f7ef3c9cf91c8777c1f78a0cc3c"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a2e7b13c40230f2d9078b3d8aaf085b7c6c06e1b478c036657a27adcffc79c40"
+  inputs-digest = "a224dade2bf98d1a077ffe08ce4bde926bb16a72c9657092f4d8a7a517b9926e"
   solver-name = "gps-cdcl"
   solver-version = 1

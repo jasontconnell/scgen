@@ -47,19 +47,24 @@ func getSerializeItems(cfg conf.Configuration, itemMap map[string]*data.Item) []
 func serializeItems(cfg conf.Configuration, list []*data.SerializedItem) error {
 	os.RemoveAll(cfg.SerializationPath)
 
-	var wg sync.WaitGroup
-	wg.Add(6)
-	groupSize := len(list)/6 + 1
+	if len(list) > 100 {
+		var wg sync.WaitGroup
+		wg.Add(6)
+		groupSize := len(list)/6 + 1
 
-	for i := 0; i < 6; i++ {
-		grp := list[(i * groupSize) : (i+1)*groupSize]
-		go func(grplist []*data.SerializedItem) {
-			serializeItemGroup(cfg, grplist)
-			wg.Done()
-		}(grp)
+		for i := 0; i < 6; i++ {
+			grp := list[(i * groupSize) : (i+1)*groupSize]
+			go func(grplist []*data.SerializedItem) {
+				serializeItemGroup(cfg, grplist)
+				wg.Done()
+			}(grp)
+		}
+
+		wg.Wait()	
+	} else {
+		serializeItemGroup(cfg, list)
 	}
-
-	wg.Wait()
+	
 
 	return nil
 }
