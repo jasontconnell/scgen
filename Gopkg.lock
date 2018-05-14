@@ -11,6 +11,12 @@
   revision = "e32faac87a2220f9342289f2c3b567d1424b8ec5"
 
 [[projects]]
+  name = "github.com/google/uuid"
+  packages = ["."]
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
+
+[[projects]]
   branch = "master"
   name = "github.com/jasontconnell/conf"
   packages = ["."]
@@ -24,9 +30,18 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/jasontconnell/sitecore"
+  packages = [
+    "api",
+    "data"
+  ]
+  revision = "6659e51dc9298a6c66f2b5e4a02fa98171dbacfe"
+
+[[projects]]
+  branch = "master"
   name = "github.com/jasontconnell/sqlhelp"
   packages = ["."]
-  revision = "24c77abbe705c4b0f603daaf33295f8a2f24ed1e"
+  revision = "9375c25243c8cfb67dac36231d0dee13e01bccfa"
 
 [[projects]]
   branch = "master"
@@ -38,11 +53,11 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["md4"]
-  revision = "b49d69b5da943f7ef3c9cf91c8777c1f78a0cc3c"
+  revision = "db7d12313a59cd5b727192a287195e2cdfa40049"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a224dade2bf98d1a077ffe08ce4bde926bb16a72c9657092f4d8a7a517b9926e"
+  inputs-digest = "094878634534a5274ba1da7bffa5be5bc8fcd918fd9de296c2f1dcdf2cc74a65"
   solver-name = "gps-cdcl"
   solver-version = 1

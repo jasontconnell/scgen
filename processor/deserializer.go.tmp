@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"scgen/conf"
-	"scgen/data"
+	"scgen/model"
 	"strconv"
 	"strings"
 )
@@ -15,8 +15,8 @@ import (
 var itemregex *regexp.Regexp = regexp.MustCompile(`ID: (.*?)\r\nName: (.*?)\r\nTemplateID: (.*?)\r\nParentID: (.*?)\r\nMasterID: (.*?)\n`)
 var fieldregex *regexp.Regexp = regexp.MustCompile(`(?s)__FIELD__\r\nID: (.*?)\r\nName: (.*?)\r\nVersion: (.*?)\r\nLanguage: (.*?)\r\nSource: (.*?)\r\n__VALUESTART__\r\n(.*?)\r\n___VALUEEND___\r\n\r\n`)
 
-func getItemsForDeserialization(cfg conf.Configuration) []data.DeserializedItem {
-	list := []data.DeserializedItem{}
+func getItemsForDeserialization(cfg conf.Configuration) []model.DeserializedItem {
+	list := []model.DeserializedItem{}
 	filepath.Walk(cfg.SerializationPath, func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, "."+cfg.SerializationExtension) {
 			bytes, _ := ioutil.ReadFile(path)
@@ -29,7 +29,7 @@ func getItemsForDeserialization(cfg conf.Configuration) []data.DeserializedItem 
 				parent := m[4]
 				master := m[5]
 
-				item := data.DeserializedItem{ID: id, TemplateID: template, ParentID: parent, Name: name, MasterID: master, Fields: []data.DeserializedField{}}
+				item := model.DeserializedItem{ID: id, TemplateID: template, ParentID: parent, Name: name, MasterID: master, Fields: []model.DeserializedField{}}
 
 				if fieldmatches := fieldregex.FindAllStringSubmatch(contents, -1); len(fieldmatches) > 0 {
 					for _, m := range fieldmatches {
@@ -40,7 +40,7 @@ func getItemsForDeserialization(cfg conf.Configuration) []data.DeserializedItem 
 						source := m[5]
 						value := m[6]
 
-						item.Fields = append(item.Fields, data.DeserializedField{ID: id, Name: name, Version: version, Language: language, Source: source, Value: value})
+						item.Fields = append(item.Fields, model.DeserializedField{ID: id, Name: name, Version: version, Language: language, Source: source, Value: value})
 					}
 				}
 				list = append(list, item)
@@ -53,11 +53,11 @@ func getItemsForDeserialization(cfg conf.Configuration) []data.DeserializedItem 
 	return list
 }
 
-func filterUpdateItems(filteredMap map[string]*data.Item, serialList []*data.SerializedItem, deserialList []data.DeserializedItem) ([]data.UpdateItem, []data.UpdateField) {
-	updateItems := []data.UpdateItem{}
-	updateFields := []data.UpdateField{}
-	itemMap := make(map[string]*data.SerializedItem)
-	fieldMap := make(map[string]data.SerializedField)
+func filterUpdateItems(filteredMap map[string]*model.Item, serialList []*model.SerializedItem, deserialList []model.DeserializedItem) ([]model.UpdateItem, []model.UpdateField) {
+	updateItems := []model.UpdateItem{}
+	updateFields := []model.UpdateField{}
+	itemMap := make(map[string]*model.SerializedItem)
+	fieldMap := make(map[string]model.SerializedField)
 
 	for _, sitem := range serialList {
 		itemMap[sitem.Item.ID] = sitem
@@ -67,8 +67,8 @@ func filterUpdateItems(filteredMap map[string]*data.Item, serialList []*data.Ser
 		}
 	}
 
-	deserializedItemMap := make(map[string]data.DeserializedItem)
-	deserializedFieldMap := make(map[string]data.DeserializedField)
+	deserializedItemMap := make(map[string]model.DeserializedItem)
+	deserializedFieldMap := make(map[string]model.DeserializedField)
 
 	for _, ditem := range deserialList {
 		deserializedItemMap[ditem.ID] = ditem
@@ -81,34 +81,34 @@ func filterUpdateItems(filteredMap map[string]*data.Item, serialList []*data.Ser
 	for _, sitem := range serialList {
 		_, inFilter := filteredMap[sitem.Item.ID]
 		if _, ok := deserializedItemMap[sitem.Item.ID]; !ok && inFilter {
-			updateItems = append(updateItems, data.UpdateItem{ID: sitem.Item.ID, Name: sitem.Item.Name, TemplateID: sitem.Item.TemplateID, ParentID: sitem.Item.ParentID, MasterID: sitem.Item.MasterID, UpdateType: data.Delete})
+			updateItems = append(updateItems, model.UpdateItem{ID: sitem.Item.ID, Name: sitem.Item.Name, TemplateID: sitem.Item.TemplateID, ParentID: sitem.Item.ParentID, MasterID: sitem.Item.MasterID, UpdateType: model.Delete})
 
 			for _, sfield := range sitem.Fields {
-				updateFields = append(updateFields, data.UpdateField{ItemID: sitem.Item.ID, FieldID: sfield.FieldID, Value: sfield.Value, Source: sfield.Source, Version: sfield.Version, Language: sfield.Language, UpdateType: data.Delete})
+				updateFields = append(updateFields, model.UpdateField{ItemID: sitem.Item.ID, FieldID: sfield.FieldID, Value: sfield.Value, Source: sfield.Source, Version: sfield.Version, Language: sfield.Language, UpdateType: model.Delete})
 			}
 		}
 	}
 
 	for _, ditem := range deserialList {
 		if item, ok := itemMap[ditem.ID]; !ok {
-			updateItems = append(updateItems, data.UpdateItem{ID: ditem.ID, Name: ditem.Name, TemplateID: ditem.TemplateID, ParentID: ditem.ParentID, MasterID: ditem.MasterID, UpdateType: data.Insert})
+			updateItems = append(updateItems, model.UpdateItem{ID: ditem.ID, Name: ditem.Name, TemplateID: ditem.TemplateID, ParentID: ditem.ParentID, MasterID: ditem.MasterID, UpdateType: model.Insert})
 			for _, field := range ditem.Fields {
-				updateFields = append(updateFields, data.UpdateField{ItemID: ditem.ID, FieldID: field.ID, Value: field.Value, Source: field.Source, Version: field.Version, Language: field.Language, UpdateType: data.Insert})
+				updateFields = append(updateFields, model.UpdateField{ItemID: ditem.ID, FieldID: field.ID, Value: field.Value, Source: field.Source, Version: field.Version, Language: field.Language, UpdateType: model.Insert})
 			}
 		} else {
 			for _, field := range ditem.Fields {
 				key := fmt.Sprintf("%v_%v", ditem.ID, field.ID)
 				if existingField, ok := fieldMap[key]; !ok {
-					updateFields = append(updateFields, data.UpdateField{ItemID: ditem.ID, FieldID: field.ID, Value: field.Value, Source: field.Source, Version: field.Version, Language: field.Language, UpdateType: data.Insert})
+					updateFields = append(updateFields, model.UpdateField{ItemID: ditem.ID, FieldID: field.ID, Value: field.Value, Source: field.Source, Version: field.Version, Language: field.Language, UpdateType: model.Insert})
 				} else {
 					if existingField.Value != field.Value || existingField.Version != field.Version || existingField.Language != field.Language {
-						updateFields = append(updateFields, data.UpdateField{ItemID: item.Item.ID, FieldID: field.ID, Value: field.Value, Source: field.Source, Version: field.Version, Language: field.Language, UpdateType: data.Update})
+						updateFields = append(updateFields, model.UpdateField{ItemID: item.Item.ID, FieldID: field.ID, Value: field.Value, Source: field.Source, Version: field.Version, Language: field.Language, UpdateType: model.Update})
 					}
 				}
 			}
 
 			if item.Item.Name != ditem.Name || item.Item.TemplateID != ditem.TemplateID || item.Item.MasterID != ditem.MasterID || item.Item.ParentID != ditem.ParentID {
-				updateItems = append(updateItems, data.UpdateItem{ID: ditem.ID, Name: ditem.Name, TemplateID: ditem.TemplateID, ParentID: ditem.ParentID, MasterID: ditem.MasterID, UpdateType: data.Update})
+				updateItems = append(updateItems, model.UpdateItem{ID: ditem.ID, Name: ditem.Name, TemplateID: ditem.TemplateID, ParentID: ditem.ParentID, MasterID: ditem.MasterID, UpdateType: model.Update})
 
 				//fmt.Println("item found in db, updating", ditem.ID)
 			}

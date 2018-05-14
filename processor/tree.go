@@ -1,148 +1,27 @@
 package processor
 
 import (
+	"github.com/jasontconnell/sitecore/data"
+	"github.com/jasontconnell/utility"
 	"path"
 	"scgen/conf"
-	"scgen/data"
-	"sort"
+	"scgen/model"
 	"strings"
-	"github.com/jasontconnell/utility"
+	"github.com/google/uuid"
+	"sort"
 )
 
-func buildTree(items []*data.Item, templateID, templateFolderID, templateFieldID, templateSectionID string) (root *data.Item, itemMap map[string]*data.Item, err error) {
-	itemMap = make(map[string]*data.Item)
-	for _, item := range items {
-		itemMap[item.ID] = item
-	}
-
-	root = nil
-	for _, item := range itemMap {
-		if p, ok := itemMap[item.ParentID]; ok {
-			p.Children = append(p.Children, item)
-			item.Parent = p
-		} else if item.ParentID == "00000000-0000-0000-0000-000000000000" {
-			root = item
-		}
-	}
-
-	if root != nil {
-		root.Path = "/" + root.Name
-		assignPaths(root)
-		assignBaseTemplates(itemMap)
-	}
-	return root, itemMap, nil
-}
-
-func assignBaseTemplates(itemMap map[string]*data.Item) {
-	for _, item := range itemMap {
-		ids := strings.Split(item.BaseTemplates, "|")
-		if len(ids) > 0 {
-			item.BaseTemplateItems = []*data.Item{}
-			for _, id := range ids {
-				if baseTemplate, ok := itemMap[id]; ok {
-					item.BaseTemplateItems = append(item.BaseTemplateItems, baseTemplate)
-				}
-			}
-		}
-	}
-}
-
-func assignPaths(root *data.Item) {
-	for i := 0; i < len(root.Children); i++ {
-		root.Children[i].Path = root.Path + "/" + root.Children[i].Name
-		assignPaths(root.Children[i])
-	}
-}
-
-func mapBaseTemplates(templates []*data.Template) map[string]*data.Template {
-	tmap := make(map[string]*data.Template)
-	for _, template := range templates {
-		tmap[template.Item.ID] = template
-	}
-
-	for _, template := range tmap {
-		for _, baseItem := range template.Item.BaseTemplateItems {
-			if baseTemplate, ok := tmap[baseItem.ID]; ok {
-				template.BaseTemplates = append(template.BaseTemplates, baseTemplate)
-			}
-		}
-	}
-
-	return tmap
-}
-
-func mapTemplatesAndFields(cfg conf.Configuration, item *data.Item) []*data.Template {
-	templates := []*data.Template{}
-
-	for _, c := range item.Children {
-		if c.TemplateID == cfg.TemplateID {
-			fields := getFieldsFromTemplate(cfg, c)
-			ns := strings.Replace(c.Path, "/", ".", -1)
-			ns = strings.Replace(ns, " ", "", -1)
-			template := &data.Template{Item: c, Fields: fields, Namespace: ns}
-			templates = append(templates, template)
-		} else {
-			ts := mapTemplatesAndFields(cfg, c)
-			templates = append(templates, ts...)
-		}
-	}
-
-	sort.Slice(templates, func(i, j int) bool {
-		return templates[i].Item.Path < templates[j].Item.Path
-	})
-
-	return templates
-}
-
-func getFieldsFromTemplate(cfg conf.Configuration, item *data.Item) []data.Field {
-	fields := []data.Field{}
-	for _, c := range item.Children {
-		if c.TemplateID == cfg.TemplateSectionID {
-			tsfields := getFieldsFromTemplateSection(cfg, c)
-			fields = append(fields, tsfields...)
-		}
-	}
-	sort.Slice(fields, func(i, j int) bool {
-		return fields[i].Name < fields[j].Name
-		})
-	return fields
-}
-
-func getFieldsFromTemplateSection(cfg conf.Configuration, item *data.Item) []data.Field {
-	fields := []data.Field{}
-	for _, c := range item.Children {
-		if c.TemplateID == cfg.TemplateFieldID {
-			field := getField(cfg, c)
-			fields = append(fields, field)
-		}
-	}
-	return fields
-}
-
-func getField(cfg conf.Configuration, item *data.Item) data.Field {
-	key := strings.ToLower(item.FieldType)
-	var fieldType conf.FieldType
-	var codeType string
-	var ok bool
-	if fieldType, ok = cfg.FieldTypeMap[key]; ok {
-		codeType = fieldType.CodeType
-	} else {
-		codeType = cfg.DefaultFieldType
-	}
-	return data.Field{Item: item, Name: item.Name, CleanName: item.CleanName, TypeName: item.FieldType, CodeType: codeType, Suffix: fieldType.Suffix}
-}
-
-func updateTemplateNamespaces(cfg conf.Configuration, templates []*data.Template) {
+func updateTemplateNamespaces(cfg conf.Configuration, templates []*model.Template) {
 	for _, template := range templates {
 		mostMatch := ""
 		for _, templatePath := range cfg.TemplatePaths {
-			if strings.HasPrefix(template.Item.Path, templatePath.Path) && len(template.Item.Path) > len(mostMatch) {
+			if strings.HasPrefix(template.Path, templatePath.Path) && len(template.Path) > len(mostMatch) {
 				mostMatch = templatePath.Path
 			}
 		}
 
 		rootPath, _ := path.Split(mostMatch)
-		rootPath = string(template.Item.Path[len(rootPath)-1:])
+		rootPath = string(template.Path[len(rootPath)-1:])
 
 		nospaces := strings.Replace(strings.TrimSuffix(rootPath, "/"), " ", "", -1)
 		nospaces = strings.Replace(nospaces, "-", "", -1)
@@ -152,7 +31,7 @@ func updateTemplateNamespaces(cfg conf.Configuration, templates []*data.Template
 		ans := ""
 		staticns := false
 		for _, templatePath := range cfg.TemplatePaths {
-			if strings.HasPrefix(template.Item.Path, templatePath.Path) {
+			if strings.HasPrefix(template.Path, templatePath.Path) {
 				ns = templatePath.Namespace
 				ans = templatePath.AlternateNamespace
 				staticns = templatePath.StaticNamespace
@@ -169,7 +48,7 @@ func updateTemplateNamespaces(cfg conf.Configuration, templates []*data.Template
 	}
 }
 
-func updateReferencedNamespaces(cfg conf.Configuration, templates []*data.Template) {
+func updateReferencedNamespaces(cfg conf.Configuration, templates []*model.Template) {
 	for _, template := range templates {
 		template.ReferencedNamespaces = []string{}
 		for _, base := range template.BaseTemplates {
@@ -180,52 +59,105 @@ func updateReferencedNamespaces(cfg conf.Configuration, templates []*data.Templa
 	}
 }
 
-func filterItemMap(cfg conf.Configuration, items map[string]*data.Item) map[string]*data.Item {
-	filteredMap := make(map[string]*data.Item)
-	for _, item := range items {
-		include := false
-		for _, basePath := range cfg.BasePaths {
-			negate := basePath[0] == '-'
-			basePath = strings.TrimPrefix(basePath, "-")
-			if !include && strings.HasPrefix(item.Path, basePath) {
-				include = !negate
-				break
-			} else {
-				parent := path.Dir(basePath)
-				for parent != "/" && parent != "" && !include {
-					include = item.Path == parent
-					parent = path.Dir(parent)
-				}
-			}
-		}
-
-		if cfg.Remap && !include {
-			include = strings.HasPrefix(item.Path, cfg.RemapApplyPath)
-		}
-
-		if include {
-			filteredMap[item.ID] = item
-		}
+func getFieldType(cfg conf.Configuration, field data.TemplateFieldNode) (string, string) {
+	key := strings.ToLower(field.GetType())
+	var fieldType conf.FieldType
+	var codeType string
+	var ok bool
+	if fieldType, ok = cfg.FieldTypeMap[key]; ok {
+		codeType = fieldType.CodeType
+	} else {
+		codeType = cfg.DefaultFieldType
 	}
-	return filteredMap
+	return codeType, fieldType.Suffix
 }
 
-func filterTemplates(cfg conf.Configuration, templates []*data.Template) (list []*data.Template) {
-	for _, template := range templates {
+func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UUID]*model.Template {
+	m := make(map[uuid.UUID]*model.Template, len(nodes))
+	for _, node := range nodes {
+		m[node.GetId()] = &model.Template{ ID: node.GetId(), Path: node.GetPath(), Name: node.GetName(), Parent: node.GetParent(), CleanName: getCleanName(node.GetName()) }
+	}
+
+	for _, node := range nodes {
+		template := m[node.GetId()]
+		for _, bt := range node.GetBaseTemplates() {
+			base := m[bt.GetId()]
+			template.BaseTemplates = append(template.BaseTemplates, base)
+		}
+
+		for _, f := range node.GetFields(){
+			codeType, suffix := getFieldType(cfg, f)
+			tfield := model.Field { ID: f.GetId(), Name: f.GetName(), CleanName: getCleanName(f.GetName()), FieldType: f.GetType(), CodeType: codeType, Suffix: suffix }
+			template.Fields = append(template.Fields, &tfield)
+		}
+	}
+
+	return m
+}
+
+func populateTemplate(cfg conf.Configuration, template *model.Template, includeMap map[uuid.UUID]bool, ignoreMap map[uuid.UUID]bool) {
+	ignore := ignoreMap[template.ID]
+	include := includeMap[template.ID]
+
+	template.Include = include
+	template.Ignore = ignore
+	template.Generate = template.Include && !template.Ignore
+
+	for _, b := range template.BaseTemplates {
+		populateTemplate(cfg, b, includeMap, ignoreMap)
+	}
+
+	for i := len(template.BaseTemplates) - 1; i >= 0; i-- {
+		b := template.BaseTemplates[i]
+		if !b.Include && b.Ignore {
+			template.BaseTemplates = append(template.BaseTemplates[:i], template.BaseTemplates[i+1:]...)
+		}
+	}
+}
+
+func filterTemplates(cfg conf.Configuration, nodes []data.TemplateNode) []*model.Template {
+	m := mapTemplates(cfg, nodes)
+	ignoreMap := make(map[uuid.UUID]bool)
+	includeMap := make(map[uuid.UUID]bool)
+	filtered := []*model.Template{}
+	for _, template := range m {
 		include := false
-		ignore := false
+		ignore := true
 		for _, templatePath := range cfg.TemplatePaths {
-			if !include && strings.HasPrefix(template.Item.Path, templatePath.Path) {
+			if !include && strings.HasPrefix(template.Path, templatePath.Path) {
 				include = true
 				ignore = templatePath.Ignore
 				break
 			}
 		}
 
+		ignoreMap[template.ID] = ignore
+		includeMap[template.ID] = include
+
 		if include {
-			template.Generate = !ignore
+			filtered = append(filtered, template)
+		}
+	}
+
+	list := []*model.Template{}
+
+	for _, template := range filtered {
+		populateTemplate(cfg, template, includeMap, ignoreMap)
+		
+		if template.Include && !template.Ignore {
+			sort.Slice(template.Fields, func(i, j int) bool {
+				return template.Fields[i].CleanName < template.Fields[j].CleanName
+			})
 			list = append(list, template)
 		}
 	}
-	return
+
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].Path < list[j].Path
+	})
+
+	updateTemplateNamespaces(cfg, list)
+	updateReferencedNamespaces(cfg, list)
+
+	return list
 }

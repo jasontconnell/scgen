@@ -1,4 +1,4 @@
-package data
+package model
 
 type FieldValue struct {
 	FieldValueID string

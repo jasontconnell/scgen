@@ -5,12 +5,12 @@ import (
 	"fmt"
 	_ "github.com/denisenkom/go-mssqldb"
 	"scgen/conf"
-	"scgen/data"
+	"scgen/model"
 	"strings"
 	"sync"
 )
 
-func update(cfg conf.Configuration, items []data.UpdateItem, fields []data.UpdateField) int64 {
+func update(cfg conf.Configuration, items []model.UpdateItem, fields []model.UpdateField) int64 {
 	itemGroups := 2
 	itemGroupSize := len(items)/itemGroups + 1
 
@@ -35,7 +35,7 @@ func update(cfg conf.Configuration, items []data.UpdateItem, fields []data.Updat
 		// items - 2 processes
 		for i := 0; i < itemGroups; i++ {
 			grplist := items[i*itemGroupSize : (i+1)*itemGroupSize]
-			go func(grp []data.UpdateItem) {
+			go func(grp []model.UpdateItem) {
 				updated += updateItems(cfg, grp)
 				wg.Done()
 			}(grplist)
@@ -49,7 +49,7 @@ func update(cfg conf.Configuration, items []data.UpdateItem, fields []data.Updat
 		// fields - 4 processes
 		for i := 0; i < fieldGroups; i++ {
 			grplist := fields[i*fieldGroupSize : (i+1)*fieldGroupSize]
-			go func(grp []data.UpdateField) {
+			go func(grp []model.UpdateField) {
 				updated += updateFields(cfg, grp)
 				wg.Done()
 			}(grplist)
@@ -63,7 +63,7 @@ func update(cfg conf.Configuration, items []data.UpdateItem, fields []data.Updat
 	return updated
 }
 
-func updateItems(cfg conf.Configuration, items []data.UpdateItem) int64 {
+func updateItems(cfg conf.Configuration, items []model.UpdateItem) int64 {
 	var updated int64 = 0
 	if db, err := sql.Open("mssql", cfg.ConnectionString); err == nil {
 		defer db.Close()
@@ -82,7 +82,7 @@ func updateItems(cfg conf.Configuration, items []data.UpdateItem) int64 {
 	return updated
 }
 
-func updateFields(cfg conf.Configuration, fields []data.UpdateField) int64 {
+func updateFields(cfg conf.Configuration, fields []model.UpdateField) int64 {
 	var updated int64 = 0
 	if db, err := sql.Open("mssql", cfg.ConnectionString); err == nil {
 		defer db.Close()
@@ -104,18 +104,18 @@ var updateitemfmt string = "update Items set Name = '%[1]v', TemplateID = '%[2]v
 var insertitemfmt string = "insert into Items (ID, Name, TemplateID, ParentID, MasterID, Created, Updated) values ('%[5]v', '%[1]v', '%[2]v', '%[3]v', '%[4]v', getdate(), getdate())"
 var deleteitemfmt string = "delete from Items where ID = '%v'"
 
-func getSqlForItems(items []data.UpdateItem) []string {
+func getSqlForItems(items []model.UpdateItem) []string {
 	sqllist := []string{}
 	for _, item := range items {
 		var sql string
 		switch item.UpdateType {
-		case data.Update:
+		case model.Update:
 			sql = fmt.Sprintf(updateitemfmt, item.Name, item.TemplateID, item.ParentID, item.MasterID, item.ID)
-		case data.Insert:
+		case model.Insert:
 			sql = fmt.Sprintf(insertitemfmt, item.Name, item.TemplateID, item.ParentID, item.MasterID, item.ID)
-		case data.Delete:
+		case model.Delete:
 			sql = fmt.Sprintf(deleteitemfmt, item.ID)
-		case data.Ignore:
+		case model.Ignore:
 			sql = ""
 		}
 
@@ -126,7 +126,7 @@ func getSqlForItems(items []data.UpdateItem) []string {
 	return sqllist
 }
 
-func getSqlForFields(fields []data.UpdateField) []string {
+func getSqlForFields(fields []model.UpdateField) []string {
 	updatemap := make(map[string]string)
 	insertmap := make(map[string]string)
 	deletemap := make(map[string]string)
@@ -149,16 +149,16 @@ func getSqlForFields(fields []data.UpdateField) []string {
 		value := strings.Replace(field.Value, "'", "''", -1)
 
 		switch field.UpdateType {
-		case data.Update:
+		case model.Update:
 			sqlfmt, _ := updatemap[field.Source]
 			sql = fmt.Sprintf(sqlfmt, field.Source, field.ItemID, field.FieldID, value, field.Language, field.Version)
-		case data.Insert:
+		case model.Insert:
 			sqlfmt, _ := insertmap[field.Source]
 			sql = fmt.Sprintf(sqlfmt, field.Source, field.ItemID, field.FieldID, value, field.Language, field.Version)
-		case data.Delete:
+		case model.Delete:
 			sqlfmt, _ := deletemap[field.Source]
 			sql = fmt.Sprintf(sqlfmt, field.Source, field.ItemID, field.FieldID, value, field.Language, field.Version)
-		case data.Ignore:
+		case model.Ignore:
 			sql = ""
 		}
 

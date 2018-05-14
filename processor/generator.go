@@ -8,13 +8,14 @@ import (
 	"path"
 	"path/filepath"
 	"scgen/conf"
-	"scgen/data"
+	"scgen/model"
 	"strings"
 	"text/template"
+	//"github.com/google/uuid"
 )
 
 type TemplateData struct {
-	Templates []*data.Template
+	Templates []*model.Template
 }
 
 var fns = template.FuncMap{
@@ -23,16 +24,18 @@ var fns = template.FuncMap{
 	},
 }
 
-func groupTemplates(by string, templates []*data.Template) []*[]*data.Template {
-	tmpmap := make(map[string]*[]*data.Template)
+func groupTemplates(by string, templates []*model.Template) []*[]*model.Template {
+	tmpmap := make(map[string]*[]*model.Template)
 
 	for _, tmpl := range templates {
 		var key string
 		switch by {
 		case "Parent":
-			key = tmpl.Item.Parent.Parent.CleanName + "." + tmpl.Item.Parent.CleanName
+			gp := getCleanName(tmpl.Parent.GetParent().GetName())
+			p := getCleanName(tmpl.Parent.GetName())
+			key = gp + "." + p
 		default:
-			key = tmpl.Item.CleanName
+			key = tmpl.CleanName
 		}
 
 		if list, ok := tmpmap[key]; ok {
@@ -40,12 +43,12 @@ func groupTemplates(by string, templates []*data.Template) []*[]*data.Template {
 			dlist = append(dlist, tmpl)
 			tmpmap[key] = &dlist
 		} else {
-			list = &[]*data.Template{tmpl}
+			list = &[]*model.Template{tmpl}
 			tmpmap[key] = list
 		}
 	}
 
-	ret := []*[]*data.Template{}
+	ret := []*[]*model.Template{}
 
 	for _, list := range tmpmap {
 		ret = append(ret, list)
@@ -54,7 +57,7 @@ func groupTemplates(by string, templates []*data.Template) []*[]*data.Template {
 	return ret
 }
 
-func generate(cfg conf.Configuration, templates []*data.Template) {
+func generate(cfg conf.Configuration, templates []*model.Template) {
 	if err := os.RemoveAll(cfg.OutputPath); err != nil {
 		panic(err)
 	}
@@ -70,7 +73,7 @@ func generate(cfg conf.Configuration, templates []*data.Template) {
 		panic(err)
 	}
 
-	list := []*data.Template{}
+	list := []*model.Template{}
 	for _, t := range templates {
 		if t.Generate {
 			list = append(list, t)
@@ -90,7 +93,7 @@ func generate(cfg conf.Configuration, templates []*data.Template) {
 	}
 }
 
-func processInlineTemplate(code string, tmpl *data.Template) string {
+func processInlineTemplate(code string, tmpl *model.Template) string {
 	var value string
 	ftmpl := template.New("Template")
 	if ftmp, ferr := ftmpl.Parse(code); ferr == nil {
@@ -105,7 +108,7 @@ func processInlineTemplate(code string, tmpl *data.Template) string {
 	return value
 }
 
-func processOne(cfg conf.Configuration, templates []*data.Template) {
+func processOne(cfg conf.Configuration, templates []*model.Template) {
 	if tmpl, err := template.New(cfg.CodeTemplate).Funcs(fns).ParseFiles(cfg.CodeTemplate); err == nil {
 		buffer := new(bytes.Buffer)
 		_, templateName := filepath.Split(cfg.CodeTemplate)
@@ -127,10 +130,10 @@ func processOne(cfg conf.Configuration, templates []*data.Template) {
 	}
 }
 
-func processMany(cfg conf.Configuration, templates []*data.Template) {
+func processMany(cfg conf.Configuration, templates []*model.Template) {
 	if tmpl, err := template.ParseFiles(cfg.CodeTemplate); err == nil {
 		for _, sctemplate := range templates {
-			p := sctemplate.Item.Path
+			p := sctemplate.Path
 			for _, bp := range cfg.BasePaths {
 				p = strings.TrimPrefix(p, bp)
 			}
@@ -142,13 +145,13 @@ func processMany(cfg conf.Configuration, templates []*data.Template) {
 				buffer := new(bytes.Buffer)
 				_, templateName := filepath.Split(cfg.CodeTemplate)
 
-				terr := tmpl.Funcs(fns).ExecuteTemplate(buffer, templateName, TemplateData{Templates: append([]*data.Template{}, sctemplate)})
+				terr := tmpl.Funcs(fns).ExecuteTemplate(buffer, templateName, TemplateData{Templates: append([]*model.Template{}, sctemplate)})
 
 				if terr != nil {
 					panic(terr)
 				}
 
-				filename := filepath.Join(fullPath, sctemplate.Item.CleanName+"."+cfg.CodeFileExtension)
+				filename := filepath.Join(fullPath, sctemplate.CleanName+"."+cfg.CodeFileExtension)
 				if cfg.FilenameTemplate != "" {
 					name := processInlineTemplate(cfg.FilenameTemplate, sctemplate)
 					filename = filepath.Join(fullPath, name+"."+cfg.CodeFileExtension)

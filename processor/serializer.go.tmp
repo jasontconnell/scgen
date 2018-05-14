@@ -6,16 +6,19 @@ import (
 	"os"
 	"path/filepath"
 	"scgen/conf"
-	"scgen/data"
 	"sync"
+    "github.com/jasontconnell/sitecore/api"
+	"github.com/jasontconnell/sitecore/data"
+	"github.com/google/uuid"
 )
 
-func getSerializeItems(cfg conf.Configuration, itemMap map[string]*data.Item) []*data.SerializedItem {
-	list := []*data.SerializedItem{}
-	sermap := make(map[string]*data.SerializedItem)
-	ids := make(map[string]bool)
+func getSerializeItems(cfg conf.Configuration, itemMap map[string]*data.Item) []data.ItemNode {
+	list := []data.ItemNode{}
+	sermap := make(map[uuid.UUID]data.ItemNode)
+	ids := make(map[uuid.UUID]bool)
+	
 
-	if fieldValues, err := getItemsForSerialization(cfg); err == nil {
+	if fieldValues, err := api.LoadFieldsParallel(cfg.ConnectionString, 24); err == nil {
 		for _, fv := range fieldValues {
 			if item, ok := itemMap[fv.ItemID]; ok {
 				serfield := data.SerializedField{FieldValueID: fv.FieldValueID, FieldID: fv.FieldID, Name: fv.FieldName, Value: fv.Value, Language: fv.Language, Version: fv.Version, Source: fv.Source}
@@ -60,11 +63,11 @@ func serializeItems(cfg conf.Configuration, list []*data.SerializedItem) error {
 			}(grp)
 		}
 
-		wg.Wait()	
+		wg.Wait()
 	} else {
 		serializeItemGroup(cfg, list)
 	}
-	
+
 
 	return nil
 }

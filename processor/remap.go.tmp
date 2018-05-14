@@ -3,15 +3,15 @@ package processor
 import (
 	"regexp"
 	"scgen/conf"
-	"scgen/data"
+	"scgen/model"
 	"strings"
 )
 
 var guidReg *regexp.Regexp = regexp.MustCompile("[a-zA-Z0-9\\-]{32,36}")
 
-func processRemap(cfg conf.Configuration, itemMap map[string]*data.Item) map[string]string {
-	originalItems := make(map[string]*data.Item)
-	clonedItems := make(map[string]*data.Item)
+func processRemap(cfg conf.Configuration, itemMap map[string]*model.Item) map[string]string {
+	originalItems := make(map[string]*model.Item)
+	clonedItems := make(map[string]*model.Item)
 
 	for _, setting := range cfg.RemapSettings {
 		instOriginalItems := getItems(setting.OriginalPath, itemMap)
@@ -68,19 +68,19 @@ func getUUIDKey(uuid string) string {
 	return strings.ToUpper(key)
 }
 
-func replaceValues(cfg conf.Configuration, items []*data.SerializedItem, updateMap map[string]string) ([]data.UpdateItem, []data.UpdateField) {
-	updateItems := []data.UpdateItem{}
-	updateFields := []data.UpdateField{}
+func replaceValues(cfg conf.Configuration, items []*model.SerializedItem, updateMap map[string]string) ([]model.UpdateItem, []model.UpdateField) {
+	updateItems := []model.UpdateItem{}
+	updateFields := []model.UpdateField{}
 	for _, item := range items {
-		updateItem := data.UpdateItem{UpdateType: data.Ignore, ID: item.Item.ID, Name: item.Item.Name, ParentID: item.Item.ParentID, MasterID: item.Item.MasterID}
+		updateItem := model.UpdateItem{UpdateType: model.Ignore, ID: item.Item.ID, Name: item.Item.Name, ParentID: item.Item.ParentID, MasterID: item.Item.MasterID}
 		for _, field := range item.Fields {
-			updateField := data.UpdateField{UpdateType: data.Ignore, Value: field.Value, ItemID: item.Item.ID, FieldID: field.FieldID, Source: field.Source, Version: field.Version, Language: field.Language}
+			updateField := model.UpdateField{UpdateType: model.Ignore, Value: field.Value, ItemID: item.Item.ID, FieldID: field.FieldID, Source: field.Source, Version: field.Version, Language: field.Language}
 			guids := guidReg.FindAllStringSubmatch(field.Value, -1)
 			for _, guid := range guids {
 				key := getUUIDKey(guid[0])
 				if id, ok := updateMap[key]; ok {
 					formatted := formatUUID(guid[0], id)
-					updateField.UpdateType = data.Update
+					updateField.UpdateType = model.Update
 					updateField.Value = strings.Replace(updateField.Value, guid[0], formatted, -1)
 				}
 			}
@@ -93,7 +93,7 @@ func replaceValues(cfg conf.Configuration, items []*data.SerializedItem, updateM
 		}
 
 		if templateID, ok := updateMap[item.Item.TemplateID]; ok {
-			updateItem.UpdateType = data.Update
+			updateItem.UpdateType = model.Update
 			updateItem.TemplateID = templateID
 		}
 
@@ -102,8 +102,8 @@ func replaceValues(cfg conf.Configuration, items []*data.SerializedItem, updateM
 	return updateItems, updateFields
 }
 
-func getItems(path string, itemMap map[string]*data.Item) []*data.Item {
-	list := []*data.Item{}
+func getItems(path string, itemMap map[string]*model.Item) []*model.Item {
+	list := []*model.Item{}
 	for _, item := range itemMap {
 		if strings.HasPrefix(item.Path, path) {
 			list = append(list, item)
@@ -112,8 +112,8 @@ func getItems(path string, itemMap map[string]*data.Item) []*data.Item {
 	return list
 }
 
-func filterRemap(cfg conf.Configuration, dataList []*data.SerializedItem) []*data.SerializedItem {
-	list := []*data.SerializedItem{}
+func filterRemap(cfg conf.Configuration, dataList []*model.SerializedItem) []*model.SerializedItem {
+	list := []*model.SerializedItem{}
 	for _, item := range dataList {
 		if strings.HasPrefix(item.Item.Path, cfg.RemapApplyPath) {
 			list = append(list, item)
