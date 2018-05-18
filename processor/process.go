@@ -18,6 +18,8 @@ type ProcessResults struct {
 	ItemsDeserialized  int
 	FieldsDeserialized int
 	OrphansCleared     int64
+
+	Error error
 }
 
 func (p Processor) Process() ProcessResults {
@@ -27,7 +29,7 @@ func (p Processor) Process() ProcessResults {
 		tnodes, err := api.LoadTemplates(p.Config.ConnectionString)
 
 		if err != nil {
-			fmt.Println("Couldn't get templates:", err)
+			results.Error = err
 			return results
 		}
 		results.TemplatesRead = len(tnodes)
@@ -42,34 +44,46 @@ func (p Processor) Process() ProcessResults {
 		return results
 	}
 
-	// root, itemMap := api.LoadItemMap(items)
-	// if root == nil {
-	// 	fmt.Println("There was a problem getting the items. Exiting.")
-	// 	return results
-	// }
+	items, err := api.LoadItems(p.Config.ConnectionString)
+	if err != nil {
+		results.Error = err
+		return results
+	}
 
-	// results.ItemsRead = len(itemMap)
-	// filteredMap := api.FilterItemMap(itemMap, p.Config.BasePaths)
+	root, itemMap := api.LoadItemMap(items)
+	if root == nil {
+		results.Error = fmt.Errorf("No root could be found.")
+		return results
+	}
 
-	// if p.Config.Serialize {
-	// 	serialList := getSerializeItems(p.Config, filteredMap)
-	// 	fmt.Println("Serializing items")
-	// 	serializeItems(p.Config, serialList)
-	// 	results.ItemsSerialized = len(serialList)
-	// }
+	results.ItemsRead = len(itemMap)
+	filteredMap := api.FilterItemMap(itemMap, p.Config.BasePaths)
 
-	// if p.Config.Deserialize {
-	// 	fmt.Println("Getting items for deserialization")
-	// 	allList := getSerializeItems(p.Config, itemMap)
+	if p.Config.Serialize {
+		serialList, err := getSerializeItems(p.Config, filteredMap)
+		if err != nil {
+			results.Error = err
+			return results
+		}
+		fmt.Println("Serializing items")
+		serializeItems(p.Config, serialList)
+		results.ItemsSerialized = len(serialList)
+	}
 
-	// 	deserializeItems := getItemsForDeserialization(p.Config)
-	// 	fmt.Println(len(deserializeItems), "items found on disc")
-	// 	updateItems, updateFields := filterUpdateItems(filteredMap, allList, deserializeItems)
-	// 	results.ItemsDeserialized = len(updateItems)
-	// 	results.FieldsDeserialized = len(updateFields)
-	// 	update(p.Config, updateItems, updateFields)
-	// 	results.OrphansCleared = cleanOrphanedItems(p.Config)
-	// }
+	if p.Config.Deserialize {
+		fmt.Println("Getting items for deserialization")
+		serialList, err := getSerializeItems(p.Config, itemMap)
+		if err != nil {
+			results.Error = err
+			return results
+		}
+		deserializeItems := getItemsForDeserialization(p.Config)
+		updateItems, updateFields := filterUpdateItems(filteredMap, serialList, deserializeItems)
+		results.ItemsDeserialized = len(updateItems)
+		results.FieldsDeserialized = len(updateFields)
+		api.Update(p.Config.ConnectionString, updateItems, updateFields)
+		results.OrphansCleared = api.CleanOrphanedItems(p.Config.ConnectionString)
+	}
 
 	// if p.Config.Remap {
 	// 	fmt.Println("Getting items for remap")
