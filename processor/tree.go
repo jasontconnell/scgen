@@ -1,14 +1,14 @@
 package processor
 
 import (
+	"github.com/google/uuid"
 	"github.com/jasontconnell/sitecore/data"
 	"github.com/jasontconnell/utility"
 	"path"
 	"scgen/conf"
 	"scgen/model"
-	"strings"
-	"github.com/google/uuid"
 	"sort"
+	"strings"
 )
 
 func updateTemplateNamespaces(cfg conf.Configuration, templates []*model.Template) {
@@ -75,7 +75,7 @@ func getFieldType(cfg conf.Configuration, field data.TemplateFieldNode) (string,
 func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UUID]*model.Template {
 	m := make(map[uuid.UUID]*model.Template, len(nodes))
 	for _, node := range nodes {
-		m[node.GetId()] = &model.Template{ ID: node.GetId(), Path: node.GetPath(), Name: node.GetName(), Parent: node.GetParent(), CleanName: getCleanName(node.GetName()) }
+		m[node.GetId()] = &model.Template{ID: node.GetId(), Path: node.GetPath(), Name: node.GetName(), Parent: node.GetParent(), CleanName: getCleanName(node.GetName())}
 	}
 
 	for _, node := range nodes {
@@ -85,9 +85,9 @@ func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UU
 			template.BaseTemplates = append(template.BaseTemplates, base)
 		}
 
-		for _, f := range node.GetFields(){
+		for _, f := range node.GetFields() {
 			codeType, suffix := getFieldType(cfg, f)
-			tfield := model.Field { ID: f.GetId(), Name: f.GetName(), CleanName: getCleanName(f.GetName()), FieldType: f.GetType(), CodeType: codeType, Suffix: suffix }
+			tfield := model.Field{ID: f.GetId(), Name: f.GetName(), CleanName: getCleanName(f.GetName()), FieldType: f.GetType(), CodeType: codeType, Suffix: suffix}
 			template.Fields = append(template.Fields, &tfield)
 		}
 	}
@@ -143,7 +143,7 @@ func filterTemplates(cfg conf.Configuration, nodes []data.TemplateNode) []*model
 
 	for _, template := range filtered {
 		populateTemplate(cfg, template, includeMap, ignoreMap)
-		
+
 		if template.Include && !template.Ignore {
 			sort.Slice(template.Fields, func(i, j int) bool {
 				return template.Fields[i].CleanName < template.Fields[j].CleanName

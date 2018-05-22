@@ -7,9 +7,9 @@ import (
 
 // unbind from "sitecore" package
 type Template struct {
-	ID         uuid.UUID
-	Name       string
-	Path       string
+	ID     uuid.UUID
+	Name   string
+	Path   string
 	Parent data.ItemNode
 
 	CleanName            string
@@ -19,14 +19,14 @@ type Template struct {
 	Generate             bool
 
 	BaseTemplates []*Template
-	Fields []*Field
-	Ignore bool
-	Include bool
+	Fields        []*Field
+	Ignore        bool
+	Include       bool
 }
 
 type Field struct {
-	ID         uuid.UUID
-	Name       string
+	ID   uuid.UUID
+	Name string
 
 	FieldType string
 	CleanName string
