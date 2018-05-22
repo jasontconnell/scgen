@@ -59,12 +59,13 @@ func (p Processor) Process() ProcessResults {
 	results.ItemsRead = len(itemMap)
 	filteredMap := api.FilterItemMap(itemMap, p.Config.BasePaths)
 
+	serialList, err := getSerializeItems(p.Config, filteredMap)
+	if err != nil {
+		results.Error = err
+		return results
+	}
+
 	if p.Config.Serialize {
-		serialList, err := getSerializeItems(p.Config, filteredMap)
-		if err != nil {
-			results.Error = err
-			return results
-		}
 		fmt.Println("Serializing items")
 		serializeItems(p.Config, serialList)
 		results.ItemsSerialized = len(serialList)
@@ -72,13 +73,8 @@ func (p Processor) Process() ProcessResults {
 
 	if p.Config.Deserialize {
 		fmt.Println("Getting items for deserialization")
-		serialList, err := getSerializeItems(p.Config, itemMap)
-		if err != nil {
-			results.Error = err
-			return results
-		}
 		deserializeItems := getItemsForDeserialization(p.Config)
-		updateItems, updateFields := filterUpdateItems(filteredMap, serialList, deserializeItems)
+		updateItems, updateFields := api.BuildUpdateItems(filteredMap, serialList, deserializeItems)
 		results.ItemsDeserialized = len(updateItems)
 		results.FieldsDeserialized = len(updateFields)
 		api.Update(p.Config.ConnectionString, updateItems, updateFields)
