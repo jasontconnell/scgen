@@ -1,7 +1,6 @@
 package processor
 
 import (
-	"fmt"
 	"github.com/jasontconnell/sitecore/api"
 	"github.com/jasontconnell/sitecore/data"
 	"io/ioutil"
