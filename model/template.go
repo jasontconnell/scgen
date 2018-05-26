@@ -2,15 +2,13 @@ package model
 
 import (
 	"github.com/google/uuid"
-	"github.com/jasontconnell/sitecore/data"
 )
 
 // unbind from "sitecore" package
 type Template struct {
-	ID     uuid.UUID
-	Name   string
-	Path   string
-	Parent data.ItemNode
+	ID   uuid.UUID
+	Name string
+	Path string
 
 	CleanName            string
 	Namespace            string

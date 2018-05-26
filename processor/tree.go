@@ -75,7 +75,7 @@ func getFieldType(cfg conf.Configuration, field data.TemplateFieldNode) (string,
 func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UUID]*model.Template {
 	m := make(map[uuid.UUID]*model.Template, len(nodes))
 	for _, node := range nodes {
-		m[node.GetId()] = &model.Template{ID: node.GetId(), Path: node.GetPath(), Name: node.GetName(), Parent: node.GetParent(), CleanName: getCleanName(node.GetName())}
+		m[node.GetId()] = &model.Template{ID: node.GetId(), Path: node.GetPath(), Name: node.GetName(), CleanName: getCleanName(node.GetName())}
 	}
 
 	for _, node := range nodes {

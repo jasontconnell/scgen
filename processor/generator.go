@@ -24,39 +24,6 @@ var fns = template.FuncMap{
 	},
 }
 
-func groupTemplates(by string, templates []*model.Template) []*[]*model.Template {
-	tmpmap := make(map[string]*[]*model.Template)
-
-	for _, tmpl := range templates {
-		var key string
-		switch by {
-		case "Parent":
-			gp := getCleanName(tmpl.Parent.GetParent().GetName())
-			p := getCleanName(tmpl.Parent.GetName())
-			key = gp + "." + p
-		default:
-			key = tmpl.CleanName
-		}
-
-		if list, ok := tmpmap[key]; ok {
-			dlist := *list
-			dlist = append(dlist, tmpl)
-			tmpmap[key] = &dlist
-		} else {
-			list = &[]*model.Template{tmpl}
-			tmpmap[key] = list
-		}
-	}
-
-	ret := []*[]*model.Template{}
-
-	for _, list := range tmpmap {
-		ret = append(ret, list)
-	}
-
-	return ret
-}
-
 func generate(cfg conf.Configuration, templates []*model.Template) {
 	if err := os.RemoveAll(cfg.OutputPath); err != nil {
 		panic(err)
@@ -82,14 +49,7 @@ func generate(cfg conf.Configuration, templates []*model.Template) {
 	if cfg.FileMode == conf.One {
 		processOne(cfg, list)
 	} else {
-		if cfg.GroupTemplatesBy == "" {
-			processMany(cfg, list)
-		} else {
-			lists := groupTemplates(cfg.GroupTemplatesBy, list)
-			for _, group := range lists {
-				processOne(cfg, *group)
-			}
-		}
+		processMany(cfg, list)
 	}
 }
 

@@ -8,7 +8,7 @@
     ".",
     "internal/cp"
   ]
-  revision = "e32faac87a2220f9342289f2c3b567d1424b8ec5"
+  revision = "c4e5513e46d427e67707ab54c97990301fb56c10"
 
 [[projects]]
   name = "github.com/google/uuid"
@@ -35,7 +35,7 @@
     "api",
     "data"
   ]
-  revision = "a2a2d0324befbadfc481bd083933aebfb9637959"
+  revision = "30280eb8881b0903173f9ec1edcd36827121384e"
 
 [[projects]]
   branch = "master"
@@ -53,7 +53,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["md4"]
-  revision = "1a580b3eff7814fc9b40602fd35256c63b50f491"
+  revision = "a3beeb748656e13e54256fd2cde19e058f41f60f"
 
 [solve-meta]
   analyzer-name = "dep"
