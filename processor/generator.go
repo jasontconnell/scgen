@@ -11,7 +11,6 @@ import (
 	"scgen/model"
 	"strings"
 	"text/template"
-	//"github.com/google/uuid"
 )
 
 type TemplateData struct {
