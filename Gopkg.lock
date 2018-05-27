@@ -35,7 +35,7 @@
     "api",
     "data"
   ]
-  revision = "01fa0bca15ce361e26217aaac7d2a596c7c306e6"
+  revision = "1dd8ec08a49d39e1632df613eb089e9bef0ea69d"
 
 [[projects]]
   branch = "master"
