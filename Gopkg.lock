@@ -35,7 +35,7 @@
     "api",
     "data"
   ]
-  revision = "1dd8ec08a49d39e1632df613eb089e9bef0ea69d"
+  revision = "6d99f2bbe6870589da644329d12be379ebd42bcd"
 
 [[projects]]
   branch = "master"
@@ -53,7 +53,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["md4"]
-  revision = "a3beeb748656e13e54256fd2cde19e058f41f60f"
+  revision = "ab813273cd59e1333f7ae7bff5d027d4aadf528c"
 
 [solve-meta]
   analyzer-name = "dep"

@@ -74,7 +74,7 @@ func (p Processor) Process() ProcessResults {
 	if p.Config.Deserialize {
 		fmt.Println("Getting items for deserialization")
 		deserializeItems := getItemsForDeserialization(p.Config)
-		updateItems, updateFields := api.BuildUpdateItems(filteredMap, serialList, deserializeItems, true)
+		updateItems, updateFields := api.BuildUpdateItems(filteredMap, serialList, deserializeItems)
 		results.ItemsDeserialized = len(updateItems)
 		results.FieldsDeserialized = len(updateFields)
 		api.Update(p.Config.ConnectionString, updateItems, updateFields)
