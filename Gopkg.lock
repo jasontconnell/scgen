@@ -2,13 +2,19 @@
 
 
 [[projects]]
+  name = "cloud.google.com/go"
+  packages = ["civil"]
+  revision = "0fd7230b2a7505833d5f69b75cbd6c9582401479"
+  version = "v0.23.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/denisenkom/go-mssqldb"
   packages = [
     ".",
     "internal/cp"
   ]
-  revision = "c4e5513e46d427e67707ab54c97990301fb56c10"
+  revision = "6024518ba7d5ba12539e47d5035a7aaac7b1920d"
 
 [[projects]]
   name = "github.com/google/uuid"
@@ -35,7 +41,7 @@
     "api",
     "data"
   ]
-  revision = "6d99f2bbe6870589da644329d12be379ebd42bcd"
+  revision = "2ec92bb36ad8c74e3855c9f5d4b18b36a830cb36"
 
 [[projects]]
   branch = "master"

@@ -77,8 +77,17 @@ func (p Processor) Process() ProcessResults {
 		updateItems, updateFields := api.BuildUpdateItems(filteredMap, serialList, deserializeItems)
 		results.ItemsDeserialized = len(updateItems)
 		results.FieldsDeserialized = len(updateFields)
-		api.Update(p.Config.ConnectionString, updateItems, updateFields)
-		results.OrphansCleared = api.CleanOrphanedItems(p.Config.ConnectionString)
+		_, err := api.Update(p.Config.ConnectionString, updateItems, updateFields)
+		if err != nil {
+			results.Error = err
+			return results
+		}
+
+		results.OrphansCleared, err = api.CleanOrphanedItems(p.Config.ConnectionString)
+		if err != nil {
+			results.Error = err
+			return results
+		}
 	}
 
 	// if p.Config.Remap {
