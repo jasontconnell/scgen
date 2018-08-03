@@ -39,9 +39,10 @@
   name = "github.com/jasontconnell/sitecore"
   packages = [
     "api",
-    "data"
+    "data",
+    "data/xml"
   ]
-  revision = "2ec92bb36ad8c74e3855c9f5d4b18b36a830cb36"
+  revision = "b99d4c1693bae0a480e9232f4ab8bd7beb9923f6"
 
 [[projects]]
   branch = "master"
