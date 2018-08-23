@@ -1,0 +1,17 @@
+cloud.google.com/go v0.23.0 h1:w1svupRqvZnfjN9+KksMiggoIRQuMzWkVzpxcR96xDs=
+cloud.google.com/go v0.23.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
+github.com/denisenkom/go-mssqldb v0.0.0-20180529175057-6024518ba7d5 h1:QybvfFUIJ3gA1W8lbT4F4gPeoNELUz6hbIjK7pdRFYE=
+github.com/denisenkom/go-mssqldb v0.0.0-20180529175057-6024518ba7d5/go.mod h1:xN/JuLBIz4bjkxNmByTiV1IbhfnYb6oo99phBn4Eqhc=
+github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c h1:jWtZjFEUE/Bz0IeIhqCnyZ3HG6KRXSntXe4SjtuTH7c=
+github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/jasontconnell/conf v0.0.0-20180214221311-246c2addc6bb h1:FWcEf/zuYhEQOOZVJZNdJOsN4Cn3Fe5J/Ld/r/xRbuA=
+github.com/jasontconnell/conf v0.0.0-20180214221311-246c2addc6bb/go.mod h1:nWfVYYLqM+8T/yaz+OAYPVUuETD0AtrL9tVnuAw9uK4=
+github.com/jasontconnell/refhelp v0.0.0-20171025035313-b28d583a40a0 h1:MwkRK7dimGgJ5jl37UiqMc4hayhfpEa8BMKC6IKfvs4=
+github.com/jasontconnell/refhelp v0.0.0-20171025035313-b28d583a40a0/go.mod h1:GZ1fAMFwPw7b0GR8uJj5OYbEhbO1L1Zk7Dib0ckIPiw=
+github.com/jasontconnell/sitecore v0.0.0-20180803211959-b99d4c1693ba h1:5UEukrrHIfCuvdpgdE3t1ieUauRQyQwUcL8oD957jsc=
+github.com/jasontconnell/sitecore v0.0.0-20180803211959-b99d4c1693ba/go.mod h1:z+gnBbh5cSr1uTgWhU+DkBX8PbtvSSuiLMuFa2IDMVQ=
+github.com/jasontconnell/sqlhelp v0.0.0-20180429142645-9375c25243c8 h1:caawugElYRa9E5CA/ADQtPQv4fv9sVMnqg9vFWiTKrg=
+github.com/jasontconnell/sqlhelp v0.0.0-20180429142645-9375c25243c8/go.mod h1:vNyJYIWMfaEHBynkqzmlVuHlhGoSy9qvQZU47LXeEuk=
+github.com/jasontconnell/utility v0.0.0-20171025133300-de2b5646569c h1:Znu+lju/DkC70lrfOI3NyG7H3YyJnxiOJrKUX3dV6Tg=
+github.com/jasontconnell/utility v0.0.0-20171025133300-de2b5646569c/go.mod h1:ihSj66jd3aNdZMp37yGIX4l6nmCNtYDmksDFQjRIYtM=
+golang.org/x/crypto v0.0.0-20180527072434-ab813273cd59/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
