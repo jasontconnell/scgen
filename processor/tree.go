@@ -2,11 +2,11 @@ package processor
 
 import (
 	"github.com/google/uuid"
+	"github.com/jasontconnell/scgen/conf"
+	"github.com/jasontconnell/scgen/model"
 	"github.com/jasontconnell/sitecore/data"
 	"github.com/jasontconnell/utility"
 	"path"
-	"scgen/conf"
-	"scgen/model"
 	"sort"
 	"strings"
 )

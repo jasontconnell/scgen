@@ -3,12 +3,12 @@ package processor
 import (
 	"bytes"
 	"fmt"
+	"github.com/jasontconnell/scgen/conf"
+	"github.com/jasontconnell/scgen/model"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
-	"scgen/conf"
-	"scgen/model"
 	"strings"
 	"text/template"
 )

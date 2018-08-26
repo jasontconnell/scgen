@@ -2,12 +2,12 @@ package processor
 
 import (
 	"fmt"
+	"github.com/jasontconnell/scgen/conf"
 	"github.com/jasontconnell/sitecore/api"
 	"github.com/jasontconnell/sitecore/data"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"scgen/conf"
 	"sync"
 )
 

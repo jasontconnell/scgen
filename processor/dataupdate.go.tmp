@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/denisenkom/go-mssqldb"
-	"scgen/conf"
-	"scgen/model"
+	"github.com/jasontconnell/scgen/conf"
+	"github.com/jasontconnell/scgen/model"
 	"strings"
 	"sync"
 )

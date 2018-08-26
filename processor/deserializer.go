@@ -1,13 +1,13 @@
 package processor
 
 import (
+	"github.com/jasontconnell/scgen/conf"
 	"github.com/jasontconnell/sitecore/api"
 	"github.com/jasontconnell/sitecore/data"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
-	"scgen/conf"
 	"strconv"
 	"strings"
 )

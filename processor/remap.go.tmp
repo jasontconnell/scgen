@@ -2,8 +2,8 @@ package processor
 
 import (
 	"regexp"
-	"scgen/conf"
-	"scgen/model"
+	"github.com/jasontconnell/scgen/conf"
+	"github.com/jasontconnell/scgen/model"
 	"strings"
 )
 

@@ -1,4 +1,4 @@
-module scgen
+module github.com/jasontconnell/scgen
 
 require (
 	cloud.google.com/go v0.23.0 // indirect
