@@ -95,7 +95,8 @@ func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UU
 	return m
 }
 
-func populateTemplate(cfg conf.Configuration, template *model.Template, includeMap map[uuid.UUID]bool, ignoreMap map[uuid.UUID]bool) {
+func populateTemplate(cfg conf.Configuration, template *model.Template, includeMap map[uuid.UUID]bool, ignoreMap, visited map[uuid.UUID]bool) {
+	visited[template.ID] = true
 	ignore := ignoreMap[template.ID]
 	include := includeMap[template.ID]
 
@@ -104,7 +105,9 @@ func populateTemplate(cfg conf.Configuration, template *model.Template, includeM
 	template.Generate = template.Include && !template.Ignore
 
 	for _, b := range template.BaseTemplates {
-		populateTemplate(cfg, b, includeMap, ignoreMap)
+		if _, ok := visited[b.ID]; !ok {
+			populateTemplate(cfg, b, includeMap, ignoreMap, visited)
+		}
 	}
 
 	for i := len(template.BaseTemplates) - 1; i >= 0; i-- {
@@ -140,9 +143,10 @@ func filterTemplates(cfg conf.Configuration, nodes []data.TemplateNode) []*model
 	}
 
 	list := []*model.Template{}
+	visited := make(map[uuid.UUID]bool)
 
 	for _, template := range filtered {
-		populateTemplate(cfg, template, includeMap, ignoreMap)
+		populateTemplate(cfg, template, includeMap, ignoreMap, visited)
 
 		if template.Include && !template.Ignore {
 			sort.Slice(template.Fields, func(i, j int) bool {
