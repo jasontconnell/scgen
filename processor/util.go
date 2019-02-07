@@ -11,3 +11,8 @@ func getCleanName(name string) string {
 	}
 	return prefix + strings.Replace(strings.Replace(strings.Title(name), "-", "", -1), " ", "", -1)
 }
+
+func getUnderscoreName(name string) string {
+	name = strings.Replace(name, " ", "_", -1)
+	return getCleanName(name)
+}

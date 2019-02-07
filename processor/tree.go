@@ -1,14 +1,15 @@
 package processor
 
 import (
+	"path"
+	"sort"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/jasontconnell/scgen/conf"
 	"github.com/jasontconnell/scgen/model"
 	"github.com/jasontconnell/sitecore/data"
 	"github.com/jasontconnell/utility"
-	"path"
-	"sort"
-	"strings"
 )
 
 func updateTemplateNamespaces(cfg conf.Configuration, templates []*model.Template) {
@@ -72,6 +73,23 @@ func getFieldType(cfg conf.Configuration, field data.TemplateFieldNode) (string,
 	return codeType, fieldType.Suffix
 }
 
+func getFieldProperties(cfg conf.Configuration, field data.TemplateFieldNode) map[string]string {
+	key := strings.ToLower(field.GetType())
+	var fieldType conf.FieldType
+	var properties map[string]string
+	var ok bool
+	if fieldType, ok = cfg.FieldTypeMap[key]; ok {
+		prop := fieldType.Properties
+		if prop == nil {
+			prop = make(map[string]string)
+		}
+		properties = prop
+	} else {
+		properties = make(map[string]string)
+	}
+	return properties
+}
+
 func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UUID]*model.Template {
 	m := make(map[uuid.UUID]*model.Template, len(nodes))
 	for _, node := range nodes {
@@ -87,7 +105,8 @@ func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UU
 
 		for _, f := range node.GetFields() {
 			codeType, suffix := getFieldType(cfg, f)
-			tfield := model.Field{ID: f.GetId(), Name: f.GetName(), CleanName: getCleanName(f.GetName()), FieldType: f.GetType(), CodeType: codeType, Suffix: suffix}
+			props := getFieldProperties(cfg, f)
+			tfield := model.Field{ID: f.GetId(), Name: f.GetName(), CleanName: getCleanName(f.GetName()), UnderscoreName: getUnderscoreName(f.GetName()), FieldType: f.GetType(), CodeType: codeType, Suffix: suffix, Properties: props}
 			template.Fields = append(template.Fields, &tfield)
 		}
 	}

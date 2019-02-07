@@ -1,10 +1,12 @@
 package conf
 
 import (
-	"github.com/jasontconnell/conf"
-	"github.com/jasontconnell/refhelp"
+	"encoding/json"
 	"path/filepath"
 	"strings"
+
+	"github.com/jasontconnell/conf"
+	"github.com/jasontconnell/refhelp"
 )
 
 type FileMode int
@@ -54,10 +56,14 @@ type Configuration struct {
 }
 
 type FieldType struct {
-	TypeName string `json:"typeName"`
-	CodeType string `json:"codeType"`
-	Suffix   string `json:"suffix"`
+	TypeName      string          `json:"typeName"`
+	CodeType      string          `json:"codeType"`
+	Suffix        string          `json:"suffix"`
+	PropertiesRaw json.RawMessage `json:"properties"`
+	Properties    FieldTypePropertyMap
 }
+
+type FieldTypePropertyMap map[string]string
 
 type TemplatePath struct {
 	Path               string `json:"path"`
@@ -81,18 +87,6 @@ type RemapSettings struct {
 func LoadConfig(file string) Configuration {
 	config := Configuration{}
 	conf.LoadConfig(file, &config)
-
-	if len(config.FieldTypes) > 0 {
-		config.FieldTypeMap = make(map[string]FieldType)
-		for _, ft := range config.FieldTypes {
-			key := strings.ToLower(ft.TypeName)
-			config.FieldTypeMap[key] = ft
-		}
-	}
-
-	if len(config.BasePaths) == 0 && len(config.BasePath) > 0 {
-		config.BasePaths = append(config.BasePaths, config.BasePath)
-	}
 
 	return config
 }
@@ -125,6 +119,28 @@ func LoadConfigs(workingDir, filecsv string) Configuration {
 func Join(dest, src *Configuration) Configuration {
 	i := refhelp.Join(dest, src)
 	cfgptr := i.(*Configuration)
+
+	if len(cfgptr.FieldTypes) > 0 {
+		cfgptr.FieldTypeMap = make(map[string]FieldType)
+		for _, ft := range cfgptr.FieldTypes {
+			key := strings.ToLower(ft.TypeName)
+			if ft.PropertiesRaw != nil {
+				ex, _ := conf.DecodeRawMessage(ft.PropertiesRaw)
+				extra := ex.(map[string]interface{})
+				ft.Properties = make(map[string]string)
+
+				for k, v := range extra {
+					ft.Properties[k] = v.(string)
+				}
+			}
+
+			cfgptr.FieldTypeMap[key] = ft
+		}
+	}
+
+	if len(cfgptr.BasePaths) == 0 && len(cfgptr.BasePath) > 0 {
+		cfgptr.BasePaths = append(cfgptr.BasePaths, cfgptr.BasePath)
+	}
 
 	return *cfgptr
 }

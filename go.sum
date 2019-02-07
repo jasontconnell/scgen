@@ -9,6 +9,8 @@ github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c h1:jWtZjFEUE/Bz0IeIhqC
 github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/jasontconnell/conf v1.0.0 h1:JlH49EuO4XMoIEIAs8Jt+7knwkgf/AUOcIj2EGIWkEU=
 github.com/jasontconnell/conf v1.0.0/go.mod h1:nWfVYYLqM+8T/yaz+OAYPVUuETD0AtrL9tVnuAw9uK4=
+github.com/jasontconnell/conf v1.0.1 h1:/bFrRuruwC1JsB7oQ5GR5A1BE+DXmhTahlu7/fIa9uY=
+github.com/jasontconnell/conf v1.0.1/go.mod h1:nWfVYYLqM+8T/yaz+OAYPVUuETD0AtrL9tVnuAw9uK4=
 github.com/jasontconnell/refhelp v1.0.0 h1:+Bcnl5Clu27B5n8UQa/QRwaezawmZ8gK2UuIRkEGZw0=
 github.com/jasontconnell/refhelp v1.0.0/go.mod h1:GZ1fAMFwPw7b0GR8uJj5OYbEhbO1L1Zk7Dib0ckIPiw=
 github.com/jasontconnell/sitecore v1.0.0 h1:6UX/jmU0bTlKrhfqGosoE4chsOY/yjoM+opBJVBvwJE=
