@@ -9,7 +9,7 @@
     ],
 
     "fieldTypes": [
-        { "typeName": "Checkbox", "codeType": "bool", "suffix": "", "extra": {} },
+        { "typeName": "Checkbox", "codeType": "bool", "suffix": "", "properties": {"SpecialProperty": "SpecialPropertyValue"} },
         { "typeName": "Date", "codeType": "DateTime", "suffix": "" },
         { "typeName": "Datetime", "codeType": "DateTime", "suffix": "" },
         { "typeName": "File", "codeType": "File", "suffix": "" },
@@ -36,5 +36,5 @@
         { "typeName": "Number", "codeType": "int", "suffix": "" },
         { "typeName": "Integer", "codeType": "int", "suffix": "" },
         { "typeName": "Readonly Checkbox", "codeType": "bool", "suffix": "" }
-    ],
+    ]
 }
