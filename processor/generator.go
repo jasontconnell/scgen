@@ -3,14 +3,15 @@ package processor
 import (
 	"bytes"
 	"fmt"
-	"github.com/jasontconnell/scgen/conf"
-	"github.com/jasontconnell/scgen/model"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/jasontconnell/scgen/conf"
+	"github.com/jasontconnell/scgen/model"
 )
 
 type TemplateData struct {
@@ -85,7 +86,7 @@ func processOne(cfg conf.Configuration, templates []*model.Template) {
 
 		writeFile(outputPath, buffer.Bytes())
 	} else {
-		fmt.Println(err)
+		fmt.Println("error occurred processing one", err)
 	}
 }
 
@@ -122,7 +123,7 @@ func processMany(cfg conf.Configuration, templates []*model.Template) {
 			}
 		}
 	} else {
-		fmt.Println(err)
+		fmt.Println("error occurred processing many", err)
 	}
 }
 

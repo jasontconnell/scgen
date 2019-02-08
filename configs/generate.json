@@ -8,6 +8,12 @@
         { "path": "/sitecore/templates/User Defined", "namespace": "DD.Data" }
     ],
 
+    "populateAllBaseTemplates": true,
+    "determineFlags": true,
+    "flags": {
+        "renderingParameters" : true
+    },
+
     "fieldTypes": [
         { "typeName": "Checkbox", "codeType": "bool", "suffix": "", "properties": {"SpecialProperty": "SpecialPropertyValue"} },
         { "typeName": "Date", "codeType": "DateTime", "suffix": "" },

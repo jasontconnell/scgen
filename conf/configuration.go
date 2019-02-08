@@ -2,6 +2,7 @@ package conf
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -17,10 +18,7 @@ const (
 )
 
 type Configuration struct {
-	TemplateID        string `json:"template"`
-	TemplateFolderID  string `json:"templateFolder"`
-	TemplateSectionID string `json:"templateSection"`
-	TemplateFieldID   string `json:"templateField"`
+	RenderingParametersID string `json:"renderingParameters"`
 
 	FieldTypes       []FieldType `json:"fieldTypes"`
 	FieldTypeMap     map[string]FieldType
@@ -47,12 +45,20 @@ type Configuration struct {
 	GroupTemplatesBy string         `json:"groupTemplatesBy"`
 	TemplatePaths    []TemplatePath `json:"templatePaths"`
 
+	PopulateAllBaseTemplates bool          `json:"populateAllBaseTemplates"`
+	DetermineFlags           bool          `json:"determineFlags"`
+	Flags                    TemplateFlags `json:"flags"`
+
 	Remap          bool            `json:"remap"`
 	RemapSettings  []RemapSettings `json:"remapSettings"`
 	RemapApplyPath string          `json:"remapApplyPath"`
 
 	// not in config file
 	FileMode FileMode
+}
+
+type TemplateFlags struct {
+	RenderingParameters bool `json:"renderingParameters"`
 }
 
 type FieldType struct {
@@ -125,7 +131,11 @@ func Join(dest, src *Configuration) Configuration {
 		for _, ft := range cfgptr.FieldTypes {
 			key := strings.ToLower(ft.TypeName)
 			if ft.PropertiesRaw != nil {
-				ex, _ := conf.DecodeRawMessage(ft.PropertiesRaw)
+				ex, err := conf.DecodeRawMessage(ft.PropertiesRaw)
+				if err != nil {
+					fmt.Println("error occurred during processing raw properties message", err, ft)
+					continue
+				}
 				extra := ex.(map[string]interface{})
 				ft.Properties = make(map[string]string)
 

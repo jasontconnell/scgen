@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/jasontconnell/scgen/conf"
-	"github.com/jasontconnell/scgen/processor"
 	"os"
 	"time"
+
+	"github.com/jasontconnell/scgen/conf"
+	"github.com/jasontconnell/scgen/processor"
 )
 
 var configFile string

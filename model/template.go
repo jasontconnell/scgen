@@ -18,8 +18,20 @@ type Template struct {
 
 	BaseTemplates []*Template
 	Fields        []*Field
-	Ignore        bool
-	Include       bool
+
+	AllBaseTemplates      []*Template
+	AllFields             []*Field
+	AllBaseTemplatesMap   map[uuid.UUID]*Template
+	AllBaseTemplateIDsMap map[uuid.UUID]bool
+
+	Flags TemplateFlags
+
+	Ignore  bool
+	Include bool
+}
+
+type TemplateFlags struct {
+	RenderingParameters bool
 }
 
 type Field struct {

@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/jasontconnell/sitecore/api"
+
 	"github.com/google/uuid"
 	"github.com/jasontconnell/scgen/conf"
 	"github.com/jasontconnell/scgen/model"
@@ -76,16 +78,10 @@ func getFieldType(cfg conf.Configuration, field data.TemplateFieldNode) (string,
 func getFieldProperties(cfg conf.Configuration, field data.TemplateFieldNode) map[string]string {
 	key := strings.ToLower(field.GetType())
 	var fieldType conf.FieldType
-	var properties map[string]string
+	properties := make(map[string]string)
 	var ok bool
-	if fieldType, ok = cfg.FieldTypeMap[key]; ok {
-		prop := fieldType.Properties
-		if prop == nil {
-			prop = make(map[string]string)
-		}
-		properties = prop
-	} else {
-		properties = make(map[string]string)
+	if fieldType, ok = cfg.FieldTypeMap[key]; ok && fieldType.Properties != nil {
+		properties = fieldType.Properties
 	}
 	return properties
 }
@@ -93,7 +89,7 @@ func getFieldProperties(cfg conf.Configuration, field data.TemplateFieldNode) ma
 func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UUID]*model.Template {
 	m := make(map[uuid.UUID]*model.Template, len(nodes))
 	for _, node := range nodes {
-		m[node.GetId()] = &model.Template{ID: node.GetId(), Path: node.GetPath(), Name: node.GetName(), CleanName: getCleanName(node.GetName())}
+		m[node.GetId()] = &model.Template{ID: node.GetId(), Path: node.GetPath(), Name: node.GetName(), CleanName: getCleanName(node.GetName()), AllBaseTemplatesMap: make(map[uuid.UUID]*model.Template), AllBaseTemplateIDsMap: make(map[uuid.UUID]bool)}
 	}
 
 	for _, node := range nodes {
@@ -111,7 +107,91 @@ func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UU
 		}
 	}
 
+	for _, node := range m {
+		v := make(map[uuid.UUID]bool)
+		allBase := getAllBaseTemplateUids(node, v)
+		for _, uid := range allBase {
+			node.AllBaseTemplateIDsMap[uid] = true
+		}
+	}
+
 	return m
+}
+
+func getAllBaseTemplateUids(node *model.Template, visited map[uuid.UUID]bool) []uuid.UUID {
+	list := []uuid.UUID{}
+	for _, n := range node.BaseTemplates {
+		if _, ok := visited[n.ID]; ok {
+			continue
+		}
+		visited[n.ID] = true
+
+		list = append(list, n.ID)
+		b := getAllBaseTemplateUids(n, visited)
+		list = append(list, b...)
+	}
+	return list
+}
+
+func mapAll(nodes map[uuid.UUID]*model.Template) {
+	for _, node := range nodes {
+		all := []*model.Template{}
+		for uid := range node.AllBaseTemplateIDsMap {
+			t, ok := nodes[uid]
+			if ok {
+				all = append(all, t)
+			}
+		}
+
+		sort.Slice(all, func(i, j int) bool {
+			return all[i].Path < all[j].Path
+		})
+
+		node.AllBaseTemplates = all
+
+		for _, n := range node.AllBaseTemplates {
+			n.AllBaseTemplatesMap[n.ID] = n
+		}
+
+		fm := make(map[string]bool)
+		node.AllFields = append(node.AllFields, node.Fields...)
+		for _, f := range node.Fields {
+			fm[f.Name] = true
+		}
+
+		for _, b := range node.AllBaseTemplates {
+			for _, f := range b.Fields {
+				if _, ok := fm[f.Name]; ok {
+					continue
+				}
+
+				node.AllFields = append(node.AllFields, f)
+				fm[f.Name] = true
+			}
+		}
+	}
+}
+
+func getAllBaseTemplates(node *model.Template, nodes map[uuid.UUID]*model.Template) []*model.Template {
+	all := []*model.Template{}
+
+	for id := range node.AllBaseTemplateIDsMap {
+		if n, ok := nodes[id]; ok {
+			all = append(all, n)
+		}
+	}
+	return all
+}
+
+func determineFlags(cfg conf.Configuration, nodes map[uuid.UUID]*model.Template) {
+	uid := api.MustParseUUID(cfg.RenderingParametersID)
+
+	for _, node := range nodes {
+		if cfg.Flags.RenderingParameters {
+			_, ok := node.AllBaseTemplateIDsMap[uid]
+			node.Flags.RenderingParameters = ok
+		}
+	}
 }
 
 func populateTemplate(cfg conf.Configuration, template *model.Template, includeMap map[uuid.UUID]bool, ignoreMap, visited map[uuid.UUID]bool) {
@@ -171,6 +251,10 @@ func filterTemplates(cfg conf.Configuration, nodes []data.TemplateNode) []*model
 			sort.Slice(template.Fields, func(i, j int) bool {
 				return template.Fields[i].CleanName < template.Fields[j].CleanName
 			})
+
+			sort.Slice(template.AllFields, func(i, j int) bool {
+				return template.AllFields[i].CleanName < template.AllFields[j].CleanName
+			})
 			list = append(list, template)
 		}
 	}
@@ -181,6 +265,20 @@ func filterTemplates(cfg conf.Configuration, nodes []data.TemplateNode) []*model
 
 	updateTemplateNamespaces(cfg, list)
 	updateReferencedNamespaces(cfg, list)
+
+	fmap := make(map[uuid.UUID]*model.Template)
+	for _, t := range list {
+		if t.Include {
+			fmap[t.ID] = t
+		}
+	}
+
+	if cfg.PopulateAllBaseTemplates {
+		mapAll(fmap)
+		if cfg.DetermineFlags {
+			determineFlags(cfg, fmap)
+		}
+	}
 
 	return list
 }

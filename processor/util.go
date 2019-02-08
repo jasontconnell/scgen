@@ -14,5 +14,5 @@ func getCleanName(name string) string {
 
 func getUnderscoreName(name string) string {
 	name = strings.Replace(name, " ", "_", -1)
-	return getCleanName(name)
+	return strings.ToLower(getCleanName(name))
 }

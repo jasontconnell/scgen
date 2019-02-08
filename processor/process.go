@@ -2,6 +2,7 @@ package processor
 
 import (
 	"fmt"
+
 	"github.com/jasontconnell/scgen/conf"
 	"github.com/jasontconnell/sitecore/api"
 )
