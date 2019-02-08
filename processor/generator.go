@@ -22,6 +22,9 @@ var fns = template.FuncMap{
 	"plus1": func(x int) int {
 		return x + 1
 	},
+	"lower": func(x string) string {
+		return strings.ToLower(x)
+	},
 }
 
 func generate(cfg conf.Configuration, templates []*model.Template) {
