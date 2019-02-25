@@ -1,9 +1,4 @@
 {
-    "templateFolder": "0437FEE2-44C9-46A6-ABE9-28858D9FEE8C",
-    "template": "AB86861A-6030-46C5-B394-E8F99E8B87DB",
-    "templateSection": "E269FBB5-3750-427A-9149-7AA950B49301",
-    "templateField": "455A3E98-A627-4B40-8035-E683A0331AC7",
-    "renderingParameters": "8CA06D6A-B353-44E8-BC31-B528C7306971",
     "serializationIgnoredFields": [
         "__Archive date",
         "__Archive Version date",
