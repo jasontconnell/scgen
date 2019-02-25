@@ -12,7 +12,26 @@ func getCleanName(name string) string {
 	return prefix + strings.Replace(strings.Replace(strings.Title(name), "-", "", -1), " ", "", -1)
 }
 
-func getUnderscoreName(name string) string {
+func getUnderscoreUppercaseName(name string) string {
 	name = strings.Replace(name, " ", "_", -1)
-	return strings.ToLower(getCleanName(name))
+	return getCleanName(name)
+}
+
+func getUnderscoreLowercaseName(name string) string {
+	return strings.ToLower(getUnderscoreUppercaseName(name))
+}
+
+func getCleanNameFunc(setting string) func(string) string {
+	var ret func(string) string
+	switch strings.ToLower(setting) {
+	case "", "pascalcase":
+		ret = getCleanName
+	case "pascalcaseunderscore":
+		ret = getUnderscoreUppercaseName
+	case "lowercaseunderscore":
+		ret = getUnderscoreLowercaseName
+	default:
+		panic("Name style not recognized: " + setting)
+	}
+	return ret
 }

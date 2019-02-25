@@ -5,8 +5,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/jasontconnell/sitecore/api"
-
 	"github.com/google/uuid"
 	"github.com/jasontconnell/scgen/conf"
 	"github.com/jasontconnell/scgen/model"
@@ -87,9 +85,12 @@ func getFieldProperties(cfg conf.Configuration, field data.TemplateFieldNode) ma
 }
 
 func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UUID]*model.Template {
+	nameFunc := getCleanNameFunc(cfg.NameStyle)
+	altNameFunc := getCleanNameFunc(cfg.AltNameStyle)
+
 	m := make(map[uuid.UUID]*model.Template, len(nodes))
 	for _, node := range nodes {
-		m[node.GetId()] = &model.Template{ID: node.GetId(), Path: node.GetPath(), Name: node.GetName(), CleanName: getCleanName(node.GetName()), AllBaseTemplatesMap: make(map[uuid.UUID]*model.Template), AllBaseTemplateIDsMap: make(map[uuid.UUID]bool)}
+		m[node.GetId()] = &model.Template{ID: node.GetId(), Path: node.GetPath(), Name: node.GetName(), CleanName: nameFunc(node.GetName()), AllBaseTemplatesMap: make(map[uuid.UUID]*model.Template), AllBaseTemplateIDsMap: make(map[uuid.UUID]bool)}
 	}
 
 	for _, node := range nodes {
@@ -102,7 +103,7 @@ func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UU
 		for _, f := range node.GetFields() {
 			codeType, suffix := getFieldType(cfg, f)
 			props := getFieldProperties(cfg, f)
-			tfield := model.Field{ID: f.GetId(), Name: f.GetName(), CleanName: getCleanName(f.GetName()), UnderscoreName: getUnderscoreName(f.GetName()), FieldType: f.GetType(), CodeType: codeType, Suffix: suffix, Properties: props}
+			tfield := model.Field{ID: f.GetId(), Name: f.GetName(), CleanName: getCleanName(f.GetName()), AltCleanName: altNameFunc(f.GetName()), FieldType: f.GetType(), CodeType: codeType, Suffix: suffix, Properties: props}
 			template.Fields = append(template.Fields, &tfield)
 		}
 	}
@@ -184,11 +185,9 @@ func getAllBaseTemplates(node *model.Template, nodes map[uuid.UUID]*model.Templa
 }
 
 func determineFlags(cfg conf.Configuration, nodes map[uuid.UUID]*model.Template) {
-	uid := api.MustParseUUID(cfg.RenderingParametersID)
-
 	for _, node := range nodes {
 		if cfg.Flags.RenderingParameters {
-			_, ok := node.AllBaseTemplateIDsMap[uid]
+			_, ok := node.AllBaseTemplateIDsMap[data.RenderingParametersID]
 			node.Flags.RenderingParameters = ok
 		}
 	}

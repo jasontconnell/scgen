@@ -38,10 +38,10 @@ type Field struct {
 	ID   uuid.UUID
 	Name string
 
-	FieldType      string
-	CleanName      string
-	CodeType       string
-	Suffix         string
-	UnderscoreName string
-	Properties     map[string]string
+	FieldType    string
+	CleanName    string
+	CodeType     string
+	Suffix       string
+	AltCleanName string
+	Properties   map[string]string
 }

@@ -45,6 +45,9 @@ type Configuration struct {
 	GroupTemplatesBy string         `json:"groupTemplatesBy"`
 	TemplatePaths    []TemplatePath `json:"templatePaths"`
 
+	NameStyle    string `json:"nameStyle"`
+	AltNameStyle string `json:"altNameStyle"`
+
 	PopulateAllBaseTemplates bool          `json:"populateAllBaseTemplates"`
 	DetermineFlags           bool          `json:"determineFlags"`
 	Flags                    TemplateFlags `json:"flags"`
