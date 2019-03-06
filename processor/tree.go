@@ -13,6 +13,8 @@ import (
 )
 
 func updateTemplateNamespaces(cfg conf.Configuration, templates []*model.Template) {
+	nameFunc := getCleanNameFunc(cfg.NameStyle)
+
 	for _, template := range templates {
 		mostMatch := ""
 		for _, templatePath := range cfg.TemplatePaths {
@@ -24,8 +26,12 @@ func updateTemplateNamespaces(cfg conf.Configuration, templates []*model.Templat
 		rootPath, _ := path.Split(mostMatch)
 		rootPath = string(template.Path[len(rootPath)-1:])
 
-		nospaces := strings.Replace(strings.TrimSuffix(rootPath, "/"), " ", "", -1)
-		nospaces = strings.Replace(nospaces, "-", "", -1)
+		parts := strings.Split(rootPath, "/")
+		for i := range parts {
+			parts[i] = nameFunc(parts[i])
+		}
+
+		nospaces := strings.TrimSuffix(strings.Join(parts, "/"), "/")
 		topFolder := path.Dir(nospaces)
 		template.Namespace = strings.Replace(topFolder, "/", ".", -1)
 		ns := ""
@@ -103,7 +109,7 @@ func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UU
 		for _, f := range node.GetFields() {
 			codeType, suffix := getFieldType(cfg, f)
 			props := getFieldProperties(cfg, f)
-			tfield := model.Field{ID: f.GetId(), Name: f.GetName(), CleanName: getCleanName(f.GetName()), AltCleanName: altNameFunc(f.GetName()), FieldType: f.GetType(), CodeType: codeType, Suffix: suffix, Properties: props}
+			tfield := model.Field{ID: f.GetId(), Name: f.GetName(), CleanName: nameFunc(f.GetName()), AltCleanName: altNameFunc(f.GetName()), FieldType: f.GetType(), CodeType: codeType, Suffix: suffix, Properties: props}
 			template.Fields = append(template.Fields, &tfield)
 		}
 	}
