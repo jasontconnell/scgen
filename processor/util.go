@@ -13,7 +13,7 @@ func getCleanName(name string) string {
 }
 
 func getUnderscoreUppercaseName(name string) string {
-	name = strings.Replace(name, " ", "_", -1)
+	name = strings.Replace(strings.Title(name), " ", "_", -1)
 	return getCleanName(name)
 }
 
