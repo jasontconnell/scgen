@@ -23,6 +23,8 @@ github.com/jasontconnell/sitecore v1.1.1 h1:euK5gLeiSwLA94rjTmrujTLMCZ2pqXJN3Y6p
 github.com/jasontconnell/sitecore v1.1.1/go.mod h1:+GJEcyFFXec7PywQHLit8faFJid2Zdvx/+Td5tUiKD4=
 github.com/jasontconnell/sitecore v1.1.2 h1:DyekSyNDd0s38oxjMLzzasVI6A49Z6+iFAGFVbMqg4E=
 github.com/jasontconnell/sitecore v1.1.2/go.mod h1:+GJEcyFFXec7PywQHLit8faFJid2Zdvx/+Td5tUiKD4=
+github.com/jasontconnell/sitecore v1.1.3 h1:GpTiRUcuqDN3q4nwPkWW7JImhqsNM7N1BRCwlHGJVgY=
+github.com/jasontconnell/sitecore v1.1.3/go.mod h1:+GJEcyFFXec7PywQHLit8faFJid2Zdvx/+Td5tUiKD4=
 github.com/jasontconnell/sqlhelp v0.0.0-20180429142645-9375c25243c8 h1:caawugElYRa9E5CA/ADQtPQv4fv9sVMnqg9vFWiTKrg=
 github.com/jasontconnell/sqlhelp v0.0.0-20180429142645-9375c25243c8/go.mod h1:vNyJYIWMfaEHBynkqzmlVuHlhGoSy9qvQZU47LXeEuk=
 github.com/jasontconnell/sqlhelp v1.0.0 h1:pDWe+xPt22XtYwYHjborfK4vmU/i1dcmh0tKJ0A235E=

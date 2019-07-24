@@ -2,13 +2,14 @@ package processor
 
 import (
 	"fmt"
-	"github.com/jasontconnell/scgen/conf"
-	"github.com/jasontconnell/sitecore/api"
-	"github.com/jasontconnell/sitecore/data"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sync"
+
+	"github.com/jasontconnell/scgen/conf"
+	"github.com/jasontconnell/sitecore/api"
+	"github.com/jasontconnell/sitecore/data"
 )
 
 func getSerializeItems(cfg conf.Configuration, itemMap data.ItemMap) ([]data.ItemNode, error) {
@@ -55,6 +56,11 @@ func serializeItemGroup(cfg conf.Configuration, list []data.ItemNode) error {
 	sepstart := "__VALUESTART__"
 	sepend := "___VALUEEND___"
 
+	ignoreFields := make(map[string]bool)
+	for _, f := range cfg.SerializationIgnoredFields {
+		ignoreFields[f] = true
+	}
+
 	for _, item := range list {
 		if item == nil {
 			continue
@@ -72,6 +78,10 @@ func serializeItemGroup(cfg conf.Configuration, list []data.ItemNode) error {
 
 		d := fmt.Sprintf("ID: %v\r\nName: %v\r\nTemplateID: %v\r\nParentID: %v\r\nMasterID: %v\r\n\r\n", item.GetId(), item.GetName(), item.GetTemplateId(), item.GetParentId(), item.GetMasterId())
 		for _, f := range item.GetFieldValues() {
+			if _, ok := ignoreFields[f.GetName()]; ok {
+				continue
+			}
+
 			d += fmt.Sprintf("__FIELD__\r\nID: %v\r\nName: %v\r\nVersion: %v\r\nLanguage: %v\r\nSource: %v\r\n%v\r\n%v\r\n%v\r\n\r\n", f.GetFieldId(), f.GetName(), f.GetVersion(), f.GetLanguage(), f.GetSource(), sepstart, f.GetValue(), sepend)
 		}
 
