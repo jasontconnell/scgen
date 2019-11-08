@@ -28,7 +28,6 @@ func main() {
 	}
 
 	cfg := conf.LoadConfigs(wd, configFile)
-
 	processor := processor.Processor{Config: cfg}
 	result := processor.Process()
 

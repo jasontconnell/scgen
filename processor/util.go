@@ -23,7 +23,7 @@ func getUnderscoreLowercaseName(name string) string {
 
 func getCleanNameFunc(setting string) func(string) string {
 	var ret func(string) string
-	switch strings.ToLower(setting) {
+	switch strings.ToLower(strings.ReplaceAll(setting, "_", "")) {
 	case "", "pascalcase":
 		ret = getCleanName
 	case "pascalcaseunderscore":

@@ -11,3 +11,5 @@ require (
 	github.com/jasontconnell/utility v1.0.0
 	golang.org/x/crypto v0.0.0-20180527072434-ab813273cd59 // indirect
 )
+
+go 1.13
