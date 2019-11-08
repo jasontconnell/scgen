@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 	"sync"
 
 	"github.com/jasontconnell/scgen/conf"
@@ -58,7 +60,7 @@ func serializeItemGroup(cfg conf.Configuration, list []data.ItemNode) error {
 
 	ignoreFields := make(map[string]bool)
 	for _, f := range cfg.SerializationIgnoredFields {
-		ignoreFields[f] = true
+		ignoreFields[strings.ToLower(f)] = true
 	}
 
 	for _, item := range list {
@@ -77,8 +79,20 @@ func serializeItemGroup(cfg conf.Configuration, list []data.ItemNode) error {
 		}
 
 		d := fmt.Sprintf("ID: %v\r\nName: %v\r\nTemplateID: %v\r\nParentID: %v\r\nMasterID: %v\r\n\r\n", item.GetId(), item.GetName(), item.GetTemplateId(), item.GetParentId(), item.GetMasterId())
-		for _, f := range item.GetFieldValues() {
-			if _, ok := ignoreFields[f.GetName()]; ok {
+
+		sorted := item.GetFieldValues()
+		sort.Slice(sorted, func(i, j int) bool {
+			if sorted[i].GetName() < sorted[j].GetName() {
+				return true
+			} else if sorted[i].GetLanguage() < sorted[j].GetLanguage() {
+				return true
+			} else {
+				return sorted[i].GetName() == sorted[j].GetName() && sorted[i].GetLanguage() == sorted[j].GetLanguage() && sorted[i].GetVersion() < sorted[j].GetVersion()
+			}
+		})
+
+		for _, f := range sorted {
+			if _, ok := ignoreFields[strings.ToLower(f.GetName())]; ok {
 				continue
 			}
 
