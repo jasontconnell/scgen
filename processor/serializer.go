@@ -58,9 +58,17 @@ func serializeItemGroup(cfg conf.Configuration, list []data.ItemNode) error {
 	sepstart := "__VALUESTART__"
 	sepend := "___VALUEEND___"
 
+	ignoreDefault := false
 	ignoreFields := make(map[string]bool)
 	for _, f := range cfg.SerializationIgnoredFields {
-		ignoreFields[strings.ToLower(f)] = true
+		fn := f
+		ignore := true
+		if f[0] == '-' {
+			ignore = false
+			fn = string(f[1:])
+			ignoreDefault = true
+		}
+		ignoreFields[strings.ToLower(fn)] = ignore
 	}
 
 	for _, item := range list {
@@ -92,7 +100,7 @@ func serializeItemGroup(cfg conf.Configuration, list []data.ItemNode) error {
 		})
 
 		for _, f := range sorted {
-			if _, ok := ignoreFields[strings.ToLower(f.GetName())]; ok {
+			if ignore, ok := ignoreFields[strings.ToLower(f.GetName())]; ok && ignore || (!ok && ignoreDefault) {
 				continue
 			}
 
