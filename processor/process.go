@@ -20,7 +20,7 @@ type ProcessResults struct {
 	FieldsDeserialized int
 	OrphansCleared     int64
 
-	Error error
+	Errors []error
 }
 
 func (p Processor) Process() ProcessResults {
@@ -30,7 +30,7 @@ func (p Processor) Process() ProcessResults {
 		tnodes, err := api.LoadTemplates(p.Config.ConnectionString)
 
 		if err != nil {
-			results.Error = err
+			results.Errors = append(results.Errors, err)
 			return results
 		}
 		results.TemplatesRead = len(tnodes)
@@ -38,7 +38,10 @@ func (p Processor) Process() ProcessResults {
 		results.TemplatesProcessed = len(templates)
 
 		fmt.Println("Generating code")
-		generate(p.Config, templates)
+		err = generate(p.Config, templates)
+		if err != nil {
+			results.Errors = append(results.Errors, err)
+		}
 	}
 
 	if !p.Config.Serialize && !p.Config.Deserialize && !p.Config.Remap {
@@ -47,13 +50,13 @@ func (p Processor) Process() ProcessResults {
 
 	items, err := api.LoadItems(p.Config.ConnectionString)
 	if err != nil {
-		results.Error = err
+		results.Errors = append(results.Errors, err)
 		return results
 	}
 
 	root, itemMap := api.LoadItemMap(items)
 	if root == nil {
-		results.Error = fmt.Errorf("No root could be found.")
+		results.Errors = append(results.Errors, fmt.Errorf("No root could be found."))
 		return results
 	}
 
@@ -62,13 +65,18 @@ func (p Processor) Process() ProcessResults {
 
 	serialList, err := getSerializeItems(p.Config, filteredMap)
 	if err != nil {
-		results.Error = err
+		results.Errors = append(results.Errors, err)
 		return results
 	}
 
 	if p.Config.Serialize {
 		fmt.Println("Serializing items")
-		serializeItems(p.Config, serialList)
+		err := serializeItems(p.Config, serialList)
+		if err != nil {
+			results.Errors = append(results.Errors, err)
+			return results
+		}
+
 		results.ItemsSerialized = len(serialList)
 	}
 
@@ -80,13 +88,13 @@ func (p Processor) Process() ProcessResults {
 		results.FieldsDeserialized = len(updateFields)
 		_, err := api.Update(p.Config.ConnectionString, updateItems, updateFields)
 		if err != nil {
-			results.Error = err
+			results.Errors = append(results.Errors, err)
 			return results
 		}
 
 		results.OrphansCleared, err = api.CleanOrphanedItems(p.Config.ConnectionString)
 		if err != nil {
-			results.Error = err
+			results.Errors = append(results.Errors, err)
 			return results
 		}
 	}

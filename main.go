@@ -3,12 +3,43 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
 	"github.com/jasontconnell/scgen/conf"
 	"github.com/jasontconnell/scgen/processor"
 )
+
+var templateMessage = `
+
+	******************* FIX IT *******************
+
+	If you are seeing this message, the Go template processor is now a bit more strict about syntax. 
+
+	Particularly the if len gt 0 check for an array. You might see this error:
+
+	executing "template.txt" at <(len $template.[ArrayName]) gt 0>: can't give argument to non-function len $template.[ArrayName]
+
+	The order is [function] param1 param2, there are no infix operators in the template syntax
+
+	Where "gt" is the function.
+
+	So change if (len $template.[ArrayName]) gt 0
+
+	To
+
+	if gt (len $template.[ArrayName]) 0
+
+	ArrayName might be Fields or AllFields or BaseTemplates among others.
+
+	Good luck and happy coding!
+	
+	Email jason.connell@herodigital.com with questions.
+
+	********************************************
+
+`
 
 var configFile string
 
@@ -31,8 +62,12 @@ func main() {
 	processor := processor.Processor{Config: cfg}
 	result := processor.Process()
 
-	if result.Error != nil {
-		fmt.Println("An error occurred: ", result.Error)
+	for _, e := range result.Errors {
+		fmt.Println("An error occurred: ", e)
+	}
+
+	if cfg.Generate && len(result.Errors) > 0 {
+		log.Println(templateMessage)
 	}
 
 	fmt.Println("Finished process in", time.Since(start))

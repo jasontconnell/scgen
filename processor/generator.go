@@ -27,9 +27,9 @@ var fns = template.FuncMap{
 	},
 }
 
-func generate(cfg conf.Configuration, templates []*model.Template) {
+func generate(cfg conf.Configuration, templates []*model.Template) error {
 	if err := os.RemoveAll(cfg.OutputPath); err != nil {
-		panic(err)
+		return fmt.Errorf("couldn't remove files %s: %w", cfg.OutputPath, err)
 	}
 
 	var outputPath string
@@ -50,10 +50,12 @@ func generate(cfg conf.Configuration, templates []*model.Template) {
 		}
 	}
 	if cfg.FileMode == conf.One {
-		processOne(cfg, list)
+		return processOne(cfg, list)
 	} else {
-		processMany(cfg, list)
+		return processMany(cfg, list)
 	}
+
+	return nil
 }
 
 func processInlineTemplate(code string, tmpl *model.Template) string {
@@ -71,14 +73,14 @@ func processInlineTemplate(code string, tmpl *model.Template) string {
 	return value
 }
 
-func processOne(cfg conf.Configuration, templates []*model.Template) {
+func processOne(cfg conf.Configuration, templates []*model.Template) error {
 	if tmpl, err := template.New(cfg.CodeTemplate).Funcs(fns).ParseFiles(cfg.CodeTemplate); err == nil {
 		buffer := new(bytes.Buffer)
 		_, templateName := filepath.Split(cfg.CodeTemplate)
 		terr := tmpl.ExecuteTemplate(buffer, templateName, TemplateData{Templates: templates})
 
 		if terr != nil {
-			panic(terr)
+			return terr
 		}
 
 		outputPath := cfg.OutputPath
@@ -87,13 +89,16 @@ func processOne(cfg conf.Configuration, templates []*model.Template) {
 			outputPath = filepath.Join(outputPath, fname)
 		}
 
-		writeFile(outputPath, buffer.Bytes())
+		return writeFile(outputPath, buffer.Bytes())
 	} else {
 		fmt.Println("error occurred processing one", err)
+		return err
 	}
+
+	return nil
 }
 
-func processMany(cfg conf.Configuration, templates []*model.Template) {
+func processMany(cfg conf.Configuration, templates []*model.Template) error {
 	if tmpl, err := template.ParseFiles(cfg.CodeTemplate); err == nil {
 		for _, sctemplate := range templates {
 			p := sctemplate.Path
@@ -111,7 +116,7 @@ func processMany(cfg conf.Configuration, templates []*model.Template) {
 				terr := tmpl.Funcs(fns).ExecuteTemplate(buffer, templateName, TemplateData{Templates: append([]*model.Template{}, sctemplate)})
 
 				if terr != nil {
-					panic(terr)
+					return terr
 				}
 
 				filename := filepath.Join(fullPath, sctemplate.CleanName+"."+cfg.CodeFileExtension)
@@ -127,7 +132,10 @@ func processMany(cfg conf.Configuration, templates []*model.Template) {
 		}
 	} else {
 		fmt.Println("error occurred processing many", err)
+		return err
 	}
+
+	return nil
 }
 
 func writeFile(path string, bytes []byte) error {

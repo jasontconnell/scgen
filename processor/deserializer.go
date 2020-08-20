@@ -1,15 +1,16 @@
 package processor
 
 import (
-	"github.com/jasontconnell/scgen/conf"
-	"github.com/jasontconnell/sitecore/api"
-	"github.com/jasontconnell/sitecore/data"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/jasontconnell/scgen/conf"
+	"github.com/jasontconnell/sitecore/api"
+	"github.com/jasontconnell/sitecore/data"
 )
 
 var itemregex *regexp.Regexp = regexp.MustCompile(`ID: ([a-f0-9\-]{36})\r\nName: (.*?)\r\nTemplateID: ([a-f0-9\-]{36})\r\nParentID: (.*?)\r\nMasterID: ([a-f0-9\-]{36})\r\n\r\n`)
@@ -43,7 +44,7 @@ func getItemsForDeserialization(cfg conf.Configuration) []data.ItemNode {
 					source := m[5]
 					value := m[6]
 
-					item.AddFieldValue(data.NewFieldValue(id, item.GetId(), name, value, language, version, source))
+					item.AddFieldValue(data.NewFieldValue(id, item.GetId(), name, value, language, version, data.FieldSource(source)))
 				}
 			}
 			list = append(list, item)
