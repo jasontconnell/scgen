@@ -2,6 +2,7 @@ package processor
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/jasontconnell/scgen/conf"
 	"github.com/jasontconnell/sitecore/api"
@@ -33,11 +34,12 @@ func (p Processor) Process() ProcessResults {
 			results.Errors = append(results.Errors, err)
 			return results
 		}
+
 		results.TemplatesRead = len(tnodes)
 		templates := filterTemplates(p.Config, tnodes)
 		results.TemplatesProcessed = len(templates)
 
-		fmt.Println("Generating code")
+		log.Println("Generating code")
 		err = generate(p.Config, templates)
 		if err != nil {
 			results.Errors = append(results.Errors, err)
@@ -70,7 +72,7 @@ func (p Processor) Process() ProcessResults {
 	}
 
 	if p.Config.Serialize {
-		fmt.Println("Serializing items")
+		log.Println("Serializing items")
 		err := serializeItems(p.Config, serialList)
 		if err != nil {
 			results.Errors = append(results.Errors, err)
@@ -81,7 +83,7 @@ func (p Processor) Process() ProcessResults {
 	}
 
 	if p.Config.Deserialize {
-		fmt.Println("Getting items for deserialization")
+		log.Println("Getting items for deserialization")
 		deserializeItems := getItemsForDeserialization(p.Config)
 		updateItems, updateFields := api.BuildUpdateItems(filteredMap, serialList, deserializeItems)
 		results.ItemsDeserialized = len(updateItems)

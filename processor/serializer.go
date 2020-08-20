@@ -108,7 +108,10 @@ func serializeItemGroup(cfg conf.Configuration, list []data.ItemNode) error {
 		}
 
 		filename := filepath.Join(dir, item.GetId().String()+"."+cfg.SerializationExtension)
-		ioutil.WriteFile(filename, []byte(d), os.ModePerm)
+		err = ioutil.WriteFile(filename, []byte(d), os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("writing file during serialization %s: %w", filename, err)
+		}
 	}
 
 	return nil

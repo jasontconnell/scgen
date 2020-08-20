@@ -28,7 +28,9 @@ var fns = template.FuncMap{
 }
 
 func generate(cfg conf.Configuration, templates []*model.Template) error {
-	if err := os.RemoveAll(cfg.OutputPath); err != nil {
+	err := os.RemoveAll(cfg.OutputPath)
+
+	if err != nil {
 		return fmt.Errorf("couldn't remove files %s: %w", cfg.OutputPath, err)
 	}
 
@@ -39,8 +41,9 @@ func generate(cfg conf.Configuration, templates []*model.Template) error {
 		outputPath = filepath.Dir(cfg.OutputPath)
 	}
 
-	if err := os.MkdirAll(outputPath, os.ModePerm); err != nil {
-		panic(err)
+	err = os.MkdirAll(outputPath, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("couldn't make output path %s: %w", outputPath, err)
 	}
 
 	list := []*model.Template{}
@@ -49,90 +52,98 @@ func generate(cfg conf.Configuration, templates []*model.Template) error {
 			list = append(list, t)
 		}
 	}
+
+	var perr error
 	if cfg.FileMode == conf.One {
-		return processOne(cfg, list)
+		perr = processOne(cfg, list)
 	} else {
-		return processMany(cfg, list)
+		perr = processMany(cfg, list)
 	}
 
-	return nil
+	return perr
 }
 
-func processInlineTemplate(code string, tmpl *model.Template) string {
+func processInlineTemplate(code string, tmpl *model.Template) (string, error) {
 	var value string
+
 	ftmpl := template.New("Template")
-	if ftmp, ferr := ftmpl.Parse(code); ferr == nil {
-		fbuf := new(bytes.Buffer)
-		if fexecerr := ftmp.Execute(fbuf, tmpl); fexecerr == nil {
-			value = string(fbuf.Bytes())
-		}
-	} else {
-		fmt.Println("couldn't parse filename template", ferr)
+	ftmp, err := ftmpl.Parse(code)
+	if err != nil {
+		return "", fmt.Errorf("parsing string %s: %w", code, err)
 	}
 
-	return value
+	fbuf := new(bytes.Buffer)
+	err = ftmp.Execute(fbuf, tmpl)
+	if err != nil {
+		return "", fmt.Errorf("executing template inline %s %s: %w", code, tmpl.Name, err)
+	}
+
+	value = string(fbuf.Bytes())
+	return value, nil
 }
 
 func processOne(cfg conf.Configuration, templates []*model.Template) error {
-	if tmpl, err := template.New(cfg.CodeTemplate).Funcs(fns).ParseFiles(cfg.CodeTemplate); err == nil {
-		buffer := new(bytes.Buffer)
-		_, templateName := filepath.Split(cfg.CodeTemplate)
-		terr := tmpl.ExecuteTemplate(buffer, templateName, TemplateData{Templates: templates})
+	tmpl, err := template.New(cfg.CodeTemplate).Funcs(fns).ParseFiles(cfg.CodeTemplate)
 
-		if terr != nil {
-			return terr
-		}
-
-		outputPath := cfg.OutputPath
-		if cfg.FilenameTemplate != "" {
-			fname := processInlineTemplate(cfg.FilenameTemplate, templates[0]) + "." + cfg.CodeFileExtension
-			outputPath = filepath.Join(outputPath, fname)
-		}
-
-		return writeFile(outputPath, buffer.Bytes())
-	} else {
-		fmt.Println("error occurred processing one", err)
-		return err
+	if err != nil {
+		return fmt.Errorf("error parsing template %s: %w", cfg.CodeTemplate, err)
 	}
 
-	return nil
+	buffer := new(bytes.Buffer)
+	_, templateName := filepath.Split(cfg.CodeTemplate)
+	err = tmpl.ExecuteTemplate(buffer, templateName, TemplateData{Templates: templates})
+
+	if err != nil {
+		return fmt.Errorf("error executing template %s: %w", cfg.CodeTemplate, err)
+	}
+
+	return writeFile(cfg.OutputPath, buffer.Bytes())
 }
 
 func processMany(cfg conf.Configuration, templates []*model.Template) error {
-	if tmpl, err := template.ParseFiles(cfg.CodeTemplate); err == nil {
-		for _, sctemplate := range templates {
-			p := sctemplate.Path
-			for _, bp := range cfg.BasePaths {
-				p = strings.TrimPrefix(p, bp)
-			}
-			dir, _ := path.Split(p)
-			dir = strings.Replace(dir, "/", "\\", -1)
-			fullPath := filepath.Join(cfg.OutputPath, dir)
+	tmpl, err := template.ParseFiles(cfg.CodeTemplate)
 
-			if cerr := os.MkdirAll(fullPath, os.ModePerm); cerr == nil {
-				buffer := new(bytes.Buffer)
-				_, templateName := filepath.Split(cfg.CodeTemplate)
+	if err != nil {
+		return fmt.Errorf("parsing file %s: %w", cfg.CodeTemplate, err)
+	}
 
-				terr := tmpl.Funcs(fns).ExecuteTemplate(buffer, templateName, TemplateData{Templates: append([]*model.Template{}, sctemplate)})
-
-				if terr != nil {
-					return terr
-				}
-
-				filename := filepath.Join(fullPath, sctemplate.CleanName+"."+cfg.CodeFileExtension)
-				if cfg.FilenameTemplate != "" {
-					name := processInlineTemplate(cfg.FilenameTemplate, sctemplate)
-					filename = filepath.Join(fullPath, name+"."+cfg.CodeFileExtension)
-				}
-
-				if err := writeFile(filename, buffer.Bytes()); err != nil {
-					fmt.Println("error occurred", err)
-				}
-			}
+	for _, sctemplate := range templates {
+		p := sctemplate.Path
+		for _, bp := range cfg.BasePaths {
+			p = strings.TrimPrefix(p, bp)
 		}
-	} else {
-		fmt.Println("error occurred processing many", err)
-		return err
+		dir, _ := path.Split(p)
+		dir = strings.Replace(dir, "/", "\\", -1)
+		fullPath := filepath.Join(cfg.OutputPath, dir)
+
+		err = os.MkdirAll(fullPath, os.ModePerm)
+
+		if err != nil {
+			return fmt.Errorf("making directory for %s : %w", fullPath, err)
+		}
+
+		buffer := new(bytes.Buffer)
+		_, templateName := filepath.Split(cfg.CodeTemplate)
+
+		err = tmpl.Funcs(fns).ExecuteTemplate(buffer, templateName, TemplateData{Templates: append([]*model.Template{}, sctemplate)})
+
+		if err != nil {
+			return err
+		}
+
+		filename := filepath.Join(fullPath, sctemplate.CleanName+"."+cfg.CodeFileExtension)
+		if cfg.FilenameTemplate != "" {
+			name, err := processInlineTemplate(cfg.FilenameTemplate, sctemplate)
+			if err != nil {
+				return fmt.Errorf("processing inline template %s: %w", cfg.FilenameTemplate, err)
+			}
+			filename = filepath.Join(fullPath, name+"."+cfg.CodeFileExtension)
+		}
+
+		err = writeFile(filename, buffer.Bytes())
+		if err != nil {
+			return fmt.Errorf("writing file %s: %w", filename, err)
+		}
 	}
 
 	return nil
