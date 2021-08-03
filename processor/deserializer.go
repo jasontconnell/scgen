@@ -1,7 +1,6 @@
 package processor
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -23,7 +22,7 @@ func getItemsForDeserialization(cfg conf.Configuration) []data.ItemNode {
 			return nil
 		}
 
-		bytes, _ := ioutil.ReadFile(path)
+		bytes, _ := os.ReadFile(path)
 		contents := string(bytes)
 		if itemmatches := itemregex.FindAllStringSubmatch(contents, -1); len(itemmatches) == 1 {
 			m := itemmatches[0]

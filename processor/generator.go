@@ -3,7 +3,6 @@ package processor
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -152,5 +151,5 @@ func processMany(cfg conf.Configuration, templates []*model.Template) error {
 func writeFile(path string, bytes []byte) error {
 	dir, _ := filepath.Split(path)
 	os.MkdirAll(dir, os.ModePerm)
-	return ioutil.WriteFile(path, bytes, os.ModePerm)
+	return os.WriteFile(path, bytes, os.ModePerm)
 }

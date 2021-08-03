@@ -40,6 +40,7 @@ github.com/jasontconnell/utility v1.0.0 h1:FeC9nf/5/Pa7F8KWtqiq6xujlbvHyFN8W97L5
 github.com/jasontconnell/utility v1.0.0/go.mod h1:ihSj66jd3aNdZMp37yGIX4l6nmCNtYDmksDFQjRIYtM=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+golang.org/x/crypto v0.0.0-20180430112654-db7d12313a59 h1:evYkmA+CHNO/6pb5CyjyKeUlEgkQ2lDgls/BiYBjGUA=
 golang.org/x/crypto v0.0.0-20180430112654-db7d12313a59/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/crypto v0.0.0-20180527072434-ab813273cd59 h1:hk3yo72LXLapY9EXVttc3Z1rLOxT9IuAPPX3GpY2+jo=
 golang.org/x/crypto v0.0.0-20180527072434-ab813273cd59/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=

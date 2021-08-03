@@ -2,7 +2,6 @@ package processor
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -86,17 +85,31 @@ func serializeItemGroup(cfg conf.Configuration, list []data.ItemNode) error {
 			return err
 		}
 
-		d := fmt.Sprintf("ID: %v\r\nName: %v\r\nTemplateID: %v\r\nParentID: %v\r\nMasterID: %v\r\n\r\n", item.GetId(), item.GetName(), item.GetTemplateId(), item.GetParentId(), item.GetMasterId())
+		d := fmt.Sprintf("ID: %v\r\nName: %v\r\nPath: %v\r\nTemplateID: %v\r\nParentID: %v\r\nMasterID: %v\r\n\r\n", item.GetId(), item.GetName(), item.GetPath(), item.GetTemplateId(), item.GetParentId(), item.GetMasterId())
 
 		sorted := item.GetFieldValues()
 		sort.Slice(sorted, func(i, j int) bool {
-			if sorted[i].GetName() < sorted[j].GetName() {
+			lname, rname := sorted[i].GetName(), sorted[j].GetName()
+			llang, rlang := sorted[i].GetLanguage(), sorted[j].GetLanguage()
+			lvers, rvers := sorted[i].GetVersion(), sorted[j].GetVersion()
+
+			nameeq := lname == rname
+			nameless := lname < rname
+
+			langless := llang < rlang
+			versless := lvers < rvers
+
+			if nameless {
 				return true
-			} else if sorted[i].GetLanguage() < sorted[j].GetLanguage() {
-				return true
-			} else {
-				return sorted[i].GetName() == sorted[j].GetName() && sorted[i].GetLanguage() == sorted[j].GetLanguage() && sorted[i].GetVersion() < sorted[j].GetVersion()
+			} else if nameeq {
+				if langless {
+					return true
+				} else {
+					return versless
+				}
 			}
+
+			return false
 		})
 
 		for _, f := range sorted {
@@ -108,7 +121,7 @@ func serializeItemGroup(cfg conf.Configuration, list []data.ItemNode) error {
 		}
 
 		filename := filepath.Join(dir, item.GetId().String()+"."+cfg.SerializationExtension)
-		err = ioutil.WriteFile(filename, []byte(d), os.ModePerm)
+		err = os.WriteFile(filename, []byte(d), os.ModePerm)
 		if err != nil {
 			return fmt.Errorf("writing file during serialization %s: %w", filename, err)
 		}
