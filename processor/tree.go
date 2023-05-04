@@ -182,6 +182,15 @@ func mapAll(nodes map[uuid.UUID]*model.Template, fieldNameFunc func(string) stri
 				fm[nm] = true
 			}
 		}
+
+		sort.Slice(node.Fields, func(i, j int) bool {
+			return node.Fields[i].CleanName < node.Fields[j].CleanName
+		})
+
+		sort.Slice(node.AllFields, func(i, j int) bool {
+			return node.AllFields[i].CleanName < node.AllFields[j].CleanName
+		})
+
 	}
 }
 
@@ -261,13 +270,6 @@ func filterTemplates(cfg conf.Configuration, nodes []data.TemplateNode) []*model
 		populateTemplate(cfg, template, includeMap, ignoreMap, visited)
 
 		if template.Include && !template.Ignore {
-			sort.Slice(template.Fields, func(i, j int) bool {
-				return template.Fields[i].CleanName < template.Fields[j].CleanName
-			})
-
-			sort.Slice(template.AllFields, func(i, j int) bool {
-				return template.AllFields[i].CleanName < template.AllFields[j].CleanName
-			})
 			list = append(list, template)
 		}
 	}
