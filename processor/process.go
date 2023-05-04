@@ -3,9 +3,12 @@ package processor
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/jasontconnell/scgen/conf"
 	"github.com/jasontconnell/sitecore/api"
+	"github.com/jasontconnell/sitecore/data"
 )
 
 type Processor struct {
@@ -27,8 +30,23 @@ type ProcessResults struct {
 func (p Processor) Process() ProcessResults {
 	results := ProcessResults{}
 
+	var pitems []data.ItemNode
+	var err error
+	if p.Config.ProtobufLocation != "" {
+		wd, _ := os.Getwd()
+		path := p.Config.ProtobufLocation
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(wd, path)
+		}
+		pitems, err = api.ReadProtobuf(path)
+		if err != nil {
+			results.Errors = append(results.Errors, err)
+			return results
+		}
+	}
+
 	if p.Config.Generate {
-		tnodes, err := api.LoadTemplates(p.Config.ConnectionString)
+		tnodes, err := api.LoadTemplatesMergeProtobuf(p.Config.ConnectionString, pitems)
 
 		if err != nil {
 			results.Errors = append(results.Errors, err)
@@ -43,6 +61,14 @@ func (p Processor) Process() ProcessResults {
 		err = generate(p.Config, templates)
 		if err != nil {
 			results.Errors = append(results.Errors, err)
+		}
+	}
+
+	if p.Config.ProtobufLocation != "" {
+		_, err := api.ReadProtobuf(p.Config.ProtobufLocation)
+		if err != nil {
+			results.Errors = append(results.Errors, err)
+			return results
 		}
 	}
 

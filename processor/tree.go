@@ -93,6 +93,7 @@ func getFieldProperties(cfg conf.Configuration, field data.TemplateFieldNode) ma
 func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UUID]*model.Template {
 	nameFunc := getCleanNameFunc(cfg.NameStyle)
 	altNameFunc := getCleanNameFunc(cfg.AltNameStyle)
+	fieldNameFunc := getCleanNameFunc(cfg.FieldNameStyle)
 
 	m := make(map[uuid.UUID]*model.Template, len(nodes))
 	for _, node := range nodes {
@@ -109,7 +110,7 @@ func mapTemplates(cfg conf.Configuration, nodes []data.TemplateNode) map[uuid.UU
 		for _, f := range node.GetFields() {
 			codeType, suffix := getFieldType(cfg, f)
 			props := getFieldProperties(cfg, f)
-			tfield := model.Field{ID: f.GetId(), Name: f.GetName(), CleanName: nameFunc(f.GetName()), AltCleanName: altNameFunc(f.GetName()), FieldType: f.GetType(), CodeType: codeType, Suffix: suffix, Properties: props}
+			tfield := model.Field{ID: f.GetId(), Name: f.GetName(), CleanName: fieldNameFunc(f.GetName()), AltCleanName: altNameFunc(f.GetName()), FieldType: f.GetType(), CodeType: codeType, Suffix: suffix, Properties: props}
 			template.Fields = append(template.Fields, &tfield)
 		}
 	}
@@ -140,7 +141,7 @@ func getAllBaseTemplateUids(node *model.Template, visited map[uuid.UUID]bool) []
 	return list
 }
 
-func mapAll(nodes map[uuid.UUID]*model.Template) {
+func mapAll(nodes map[uuid.UUID]*model.Template, fieldNameFunc func(string) string) {
 	for _, node := range nodes {
 		all := []*model.Template{}
 		for uid := range node.AllBaseTemplateIDsMap {
@@ -161,19 +162,24 @@ func mapAll(nodes map[uuid.UUID]*model.Template) {
 		}
 
 		fm := make(map[string]bool)
-		node.AllFields = append(node.AllFields, node.Fields...)
 		for _, f := range node.Fields {
-			fm[f.Name] = true
+			nm := fieldNameFunc(f.Name)
+			if _, ok := fm[nm]; ok {
+				continue
+			}
+			node.AllFields = append(node.AllFields, f)
+			fm[nm] = true
 		}
 
 		for _, b := range node.AllBaseTemplates {
 			for _, f := range b.Fields {
-				if _, ok := fm[f.Name]; ok {
+				nm := fieldNameFunc(f.Name)
+				if _, ok := fm[nm]; ok {
 					continue
 				}
 
 				node.AllFields = append(node.AllFields, f)
-				fm[f.Name] = true
+				fm[nm] = true
 			}
 		}
 	}
@@ -227,6 +233,8 @@ func filterTemplates(cfg conf.Configuration, nodes []data.TemplateNode) []*model
 	ignoreMap := make(map[uuid.UUID]bool)
 	includeMap := make(map[uuid.UUID]bool)
 	filtered := []*model.Template{}
+	fieldNameFunc := getCleanNameFunc(cfg.FieldNameStyle)
+
 	for _, template := range m {
 		include := false
 		ignore := true
@@ -279,7 +287,7 @@ func filterTemplates(cfg conf.Configuration, nodes []data.TemplateNode) []*model
 	}
 
 	if cfg.PopulateAllBaseTemplates {
-		mapAll(fmap)
+		mapAll(fmap, fieldNameFunc)
 		if cfg.DetermineFlags {
 			determineFlags(cfg, fmap)
 		}

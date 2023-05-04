@@ -43,7 +43,7 @@ func getItemsForDeserialization(cfg conf.Configuration) []data.ItemNode {
 					source := m[5]
 					value := m[6]
 
-					item.AddFieldValue(data.NewFieldValue(id, item.GetId(), name, value, language, version, data.FieldSource(source)))
+					item.AddFieldValue(data.NewFieldValue(id, item.GetId(), name, value, data.Language(language), version, data.FieldSource(source)))
 				}
 			}
 			list = append(list, item)

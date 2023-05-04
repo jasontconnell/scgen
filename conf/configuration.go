@@ -32,6 +32,7 @@ type Configuration struct {
 	SerializationExtension     string   `json:"serializationExtension"`
 
 	ConnectionString string `json:"connectionString"`
+	ProtobufLocation string `json:"protobufLocation"`
 
 	Serialize   bool `json:"serialize"`
 	Generate    bool `json:"generate"`
@@ -45,8 +46,9 @@ type Configuration struct {
 	GroupTemplatesBy string         `json:"groupTemplatesBy"`
 	TemplatePaths    []TemplatePath `json:"templatePaths"`
 
-	NameStyle    string `json:"nameStyle"`
-	AltNameStyle string `json:"altNameStyle"`
+	NameStyle      string `json:"nameStyle"`
+	AltNameStyle   string `json:"altNameStyle"`
+	FieldNameStyle string `json:"fieldNameStyle"`
 
 	PopulateAllBaseTemplates bool          `json:"populateAllBaseTemplates"`
 	DetermineFlags           bool          `json:"determineFlags"`
