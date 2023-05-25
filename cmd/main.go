@@ -8,11 +8,10 @@ import (
 	"time"
 
 	"github.com/jasontconnell/scgen/conf"
-	"github.com/jasontconnell/scgen/processor"
+	"github.com/jasontconnell/scgen/process"
 )
 
 var templateMessage = `
-
 	******************* FIX IT *******************
 
 	If you are seeing this message, the Go template processor is now a bit more strict about syntax. 
@@ -31,7 +30,6 @@ var templateMessage = `
 	Email jason.connell@herodigital.com with questions.
 
 	********************************************
-
 `
 
 var configFile string
@@ -52,8 +50,8 @@ func main() {
 	}
 
 	cfg := conf.LoadConfigs(wd, configFile)
-	processor := processor.Processor{Config: cfg}
-	result := processor.Process()
+	proc := process.Processor{Config: cfg}
+	result := proc.Process()
 
 	for _, e := range result.Errors {
 		log.Println(fmt.Errorf("An error occurred: %s. %w", e.Error(), e))
