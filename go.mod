@@ -14,7 +14,7 @@ require (
 	github.com/jasontconnell/sqlhelp v1.0.0 // indirect
 	github.com/microsoft/go-mssqldb v0.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
-	google.golang.org/protobuf v1.26.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 )
 
 go 1.20
