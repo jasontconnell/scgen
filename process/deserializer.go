@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/jasontconnell/scgen/conf"
 	"github.com/jasontconnell/sitecore/api"
@@ -32,7 +33,7 @@ func getItemsForDeserialization(cfg conf.Configuration) []data.ItemNode {
 			parent := api.MustParseUUID(m[4])
 			master := api.MustParseUUID(m[5])
 
-			item := data.NewItemNode(id, name, template, parent, master)
+			item := data.NewItemNode(id, name, template, parent, master, time.Now(), time.Now())
 
 			if fieldmatches := fieldregex.FindAllStringSubmatch(contents, -1); len(fieldmatches) > 0 {
 				for _, m := range fieldmatches {
@@ -43,7 +44,7 @@ func getItemsForDeserialization(cfg conf.Configuration) []data.ItemNode {
 					source := m[5]
 					value := m[6]
 
-					item.AddFieldValue(data.NewFieldValue(id, item.GetId(), name, value, data.Language(language), version, data.FieldSource(source)))
+					item.AddFieldValue(data.NewFieldValue(id, item.GetId(), name, value, data.Language(language), version, time.Now(), time.Now(), data.FieldSource(source)))
 				}
 			}
 			list = append(list, item)

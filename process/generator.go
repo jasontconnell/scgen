@@ -77,7 +77,7 @@ func processInlineTemplate(code string, tmpl *model.Template) (string, error) {
 		return "", fmt.Errorf("executing template inline %s %s: %w", code, tmpl.Name, err)
 	}
 
-	value = string(fbuf.Bytes())
+	value = fbuf.String()
 	return value, nil
 }
 

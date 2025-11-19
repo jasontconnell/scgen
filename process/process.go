@@ -33,6 +33,7 @@ func (p Processor) Process() ProcessResults {
 	var pitems []data.ItemNode
 	var err error
 	if p.Config.ProtobufLocation != "" {
+		log.Println("Loading from protobuf")
 		wd, _ := os.Getwd()
 		path := p.Config.ProtobufLocation
 		if !filepath.IsAbs(path) {
@@ -43,6 +44,7 @@ func (p Processor) Process() ProcessResults {
 			results.Errors = append(results.Errors, err)
 			return results
 		}
+		log.Println("Loaded", len(pitems), "from protobuf")
 	}
 
 	if p.Config.Generate {
